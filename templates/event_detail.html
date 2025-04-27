@@ -2,134 +2,214 @@
 {% load tz %}
 {% block content %}
 
-<h2 class="mb-4">{{ event.title }}</h2>
+    <h2 class="mb-4">{{ event.title }}</h2>
 
-<div class="mb-3">
-    <p><strong>Дата проведения:</strong> {{ event.date|date:"j E Y в H:i" }}</p>
-    <p><strong>Окончание:</strong>       {{ event.end_date|date:"j E Y в H:i" }}</p>
-    <p><strong>Описание:</strong>         {{ event.description|default:"(нет описания)" }}</p>
-    <p><strong>Место:</strong>            {{ event.location|default:"(не указано)" }}</p>
-</div>
+    <div class="mb-3">
+        <p><strong>Дата проведения:</strong> {{ event.date|date:"j E Y в H:i" }}</p>
+        <p><strong>Окончание:</strong> {{ event.end_date|date:"j E Y в H:i" }}</p>
+        <p><strong>Описание:</strong> {{ event.description|default:"(нет описания)" }}</p>
+        <p><strong>Место:</strong> {{ event.location|default:"(не указано)" }}</p>
+    </div>
 
-{% if event.cover %}
-    <img src="{{ event.cover.url }}" class="img-fluid my-3" alt="Обложка">
-{% endif %}
+    {% if event.cover %}
+        <img src="{{ event.cover.url }}" class="img-fluid my-3" alt="Обложка">
+    {% endif %}
 
-<p><strong>Регистрация до:</strong> {{ event.registration_deadline|date:"j E Y H:i" }}</p>
+    <p><strong>Регистрация до:</strong> {{ event.registration_deadline|date:"j E Y H:i" }}</p>
 
-{% if user.profile.role == 'organizer' and user == event.created_by %}
-  <div class="mb-4">
-      <a href="{% url 'add_schedule_item' event.id %}"       class="btn btn-outline-primary btn-sm">➕ Добавить активность</a>
-      <a href="{% url 'add_material' event.id %}"            class="btn btn-outline-secondary btn-sm">📎 Добавить материалы</a>
-      <a href="{% url 'view_participants' event.id %}"       class="btn btn-outline-info btn-sm">👥 Участники</a>
-      <a href="{% url 'event_stats' event.id %}"             class="btn btn-outline-dark btn-sm">📊 Статистика</a>
-  </div>
+    {% if user.profile.role == 'organizer' and user == event.created_by %}
+        <div class="mb-4">
+            <a href="{% url 'add_schedule_item' event.id %}" class="btn btn-outline-primary btn-sm">➕ Добавить
+                активность</a>
+            <a href="{% url 'add_material' event.id %}" class="btn btn-outline-secondary btn-sm">📎 Добавить
+                материалы</a>
+            <a href="{% url 'view_participants' event.id %}" class="btn btn-outline-info btn-sm">👥 Участники</a>
+            <a href="{% url 'event_stats' event.id %}" class="btn btn-outline-dark btn-sm">📊 Статистика</a>
+        </div>
 
-  <div class="mt-4">
-      <h5>🔗 Публичная ссылка для регистрации</h5>
-      <div class="input-group">
-          <input id="publicLink" type="text" class="form-control" value="{{ public_link }}" readonly>
-          <button class="btn btn-outline-secondary" type="button"
-                  onclick="navigator.clipboard.writeText(document.getElementById('publicLink').value)">
-              📋 Копировать
-          </button>
-      </div>
-      <small class="text-muted">Отправьте эту ссылку участникам — по ней они попадут на форму регистрации.</small>
-  </div>
+        <div class="mt-4">
+            <h5>🔗 Публичная ссылка для регистрации</h5>
+            <div class="input-group">
+                <input id="publicLink" type="text" class="form-control" value="{{ public_link }}" readonly>
+                <button class="btn btn-outline-secondary" type="button"
+                        onclick="navigator.clipboard.writeText(document.getElementById('publicLink').value)">
+                    📋 Копировать
+                </button>
+            </div>
+            <small class="text-muted">Отправьте эту ссылку участникам — по ней они попадут на форму регистрации.</small>
+        </div>
 
-  <script>
-    const copyBtn = document.querySelector('button[onclick^="navigator.clipboard"]');
-    if (copyBtn) {
-        copyBtn.addEventListener('click', () => {
-            copyBtn.innerText = '✅ Скопировано';
-            setTimeout(() => copyBtn.innerText = '📋 Копировать', 2000);
-        });
-    }
-  </script>
-{% endif %}
+        <script>
+            const copyBtn = document.querySelector('button[onclick^="navigator.clipboard"]');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    copyBtn.innerText = '✅ Скопировано';
+                    setTimeout(() => copyBtn.innerText = '📋 Копировать', 2000);
+                });
+            }
+        </script>
+    {% endif %}
 
-<hr>
+    <hr>
 
-<h4>📅 Расписание</h4>
-{% if event.schedule_items.exists %}
-<table class="table table-striped table-bordered">
-  <thead>
-    <tr>
-      <th>Название</th>
-      <th>Время</th>
-      <th>Описание</th>
-      <th>Материалы</th>
-      {% if user == event.created_by and user.profile.role == 'organizer' %}
-          <th class="text-center">Управление</th>
-      {% endif %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in event.schedule_items.all %}
-      <tr>
-        <td>{{ item.title }}</td>
-        <td>{{ item.start_time|time:"H:i" }}–{{ item.end_time|time:"H:i" }}</td>
-        <td>{{ item.description|default:"—" }}</td>
-        <td>
-          {% for m in item.materials.all %}
-              <a href="{{ m.file.url }}" class="d-block">{{ m.description }}</a>
-          {% empty %}
-              <span class="text-muted">Нет материалов</span>
-          {% endfor %}
-          {% if user == event.created_by and user.profile.role == 'organizer' %}
-              <a href="{% url 'add_material_to_activity' event.id item.id %}" class="btn btn-link btn-sm">+ Материал</a>
-          {% endif %}
-        </td>
+    <h4>📅 Расписание</h4>
+    {% if event.schedule_items.exists %}
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th>Название</th>
+                <th>Время</th>
+                <th>Описание</th>
+                <th>Материалы</th>
+                {% if user == event.created_by and user.profile.role == 'organizer' %}
+                    <th class="text-center">Управление</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in event.schedule_items.all %}
+                <tr>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.start_time|time:"H:i" }}–{{ item.end_time|time:"H:i" }}</td>
+                    <td>{{ item.description|default:"—" }}</td>
+                    <td>
+                        {% for m in item.materials.all %}
+                            <a href="{{ m.file.url }}" class="d-block">{{ m.description }}</a>
+                        {% empty %}
+                            <span class="text-muted">Нет материалов</span>
+                        {% endfor %}
+                        {% if user == event.created_by and user.profile.role == 'organizer' %}
+                            <a href="{% url 'add_material_to_activity' event.id item.id %}" class="btn btn-link btn-sm">+
+                                Материал</a>
+                        {% endif %}
+                    </td>
 
-        {% if user == event.created_by and user.profile.role == 'organizer' %}
-        <td class="text-center">
-            <a href="{% url 'edit_schedule_item' item.id %}"   class="btn btn-outline-secondary btn-sm" title="Редактировать">✏️</a>
-            <a href="{% url 'delete_schedule_item' item.id %}" class="btn btn-outline-danger btn-sm"    title="Удалить"
-               onclick="return confirm('Удалить активность «{{ item.title }}»?');">🗑️</a>
-        </td>
+                    {% if user == event.created_by and user.profile.role == 'organizer' %}
+                        <td class="text-center">
+                            <a href="{% url 'edit_schedule_item' item.id %}" class="btn btn-outline-secondary btn-sm"
+                               title="Редактировать">✏️</a>
+                            <a href="{% url 'delete_schedule_item' item.id %}" class="btn btn-outline-danger btn-sm"
+                               title="Удалить"
+                               onclick="return confirm('Удалить активность «{{ item.title }}»?');">🗑️</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">Расписание ещё не добавлено.</p>
+    {% endif %}
+
+    <hr>
+
+    <h4>📂 Материалы к мероприятию</h4>
+    {% if event.materials.exists %}
+        <ul>
+            {% for material in event.materials.all %}
+                <li><a href="{{ material.file.url }}">{{ material.description }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">Материалы ещё не загружены.</p>
+    {% endif %}
+
+    {% if not is_registered and user.profile.role != 'organizer' %}
+        <a href="{% url 'register_for_event' event.id %}" class="btn btn-success">📌 Зарегистрироваться</a>
+    {% elif is_registered %}
+        <p class="text-success">✅ Вы уже зарегистрированы</p>
+    {% endif %}
+
+    <a href="{% url 'edit_event' event.id %}" class="btn btn-outline-warning btn-sm">✏️ Редактировать</a>
+    <a href="{% url 'delete_event' event.id %}" class="btn btn-outline-danger  btn-sm">🗑️ Удалить</a>
+
+    {% timezone "Europe/Moscow" %}
+        {% now "Y-m-d H:i:s" as now_msk %}
+    {% endtimezone %}
+
+    <h4>💬 Отзывы о мероприятии</h4>
+
+    {% if feedback_event %}
+        <p>
+            <strong>Средний рейтинг:</strong>
+            {% with avg=avg_event_rating|default:0 %}
+                {% with rounded=avg|floatformat:0 %}
+                    {% for _ in "12345"|make_list %}
+                        {% if forloop.counter <= rounded|add:"0" %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                    ({{ avg|floatformat:1 }})
+                {% endwith %}
+            {% endwith %}
+        </p>
+
+        <div class="list-group mb-4">
+            {% for fb in feedback_event %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>{{ fb.registration.full_name }}</strong>
+                        <span class="text-warning">
+                  {% for _ in "12345"|make_list %}
+                      {% if forloop.counter <= fb.rating %}★{% else %}☆{% endif %}
+                  {% endfor %}
+              </span>
+                    </div>
+
+                    {#  ↓  вот эта строка добавляет реальный текст отзыва ↓  #}
+                    <p class="mb-1 mt-2">{{ fb.text|default:"—"|linebreaksbr }}</p>
+
+                    <small class="text-muted">{{ fb.created_at|localtime|date:"d.m.Y H:i" }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">Пока нет отзывов.</p>
+    {% endif %}
+
+    {% if feedback_by_activity %}
+        <h4>📑 Отзывы по активностям</h4>
+
+        {% for fb_data in feedback_by_activity.values %}
+            <h5 class="mt-3">{{ fb_data.activity.title }}</h5>
+
+            {% if fb_data.feedbacks %}
+                <p>
+                    Средний рейтинг:
+                    {% with avg=fb_data.avg_rating|default:0 %}
+                        {% with rounded=avg|floatformat:0 %}
+                            {% for _ in "12345"|make_list %}
+                                {% if forloop.counter <= rounded|add:"0" %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                            ({{ avg|floatformat:1 }})
+                        {% endwith %}
+                    {% endwith %}
+                </p>
+
+                <ul class="list-unstyled">
+                    {% for fb in fb_data.feedbacks %}
+                        <li class="mb-2">
+                            <strong>{{ fb.registration.full_name }}</strong> —
+                            {% for _ in "12345"|make_list %}
+                                {% if forloop.counter <= fb.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                            <br>
+                            {{ fb.comment|default:"—"|linebreaksbr }} {# ← вывод текста #}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">Нет отзывов.</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if is_registered and user.profile.role != 'organizer' %}
+        {% if event.end_date|localtime <= now_msk|date:"Y-m-d H:i:s" %}
+            <a href="{% url 'leave_feedback' event.id %}" class="btn btn-outline-success mt-3">📝 Оставить отзыв</a>
+        {% else %}
+            <p class="text-muted mt-3 fst-italic">
+                Оставить отзыв можно после {{ event.end_date|date:"j E Y в H:i" }}
+            </p>
         {% endif %}
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-  <p class="text-muted">Расписание ещё не добавлено.</p>
-{% endif %}
-
-<hr>
-
-<h4>📂 Материалы к мероприятию</h4>
-{% if event.materials.exists %}
-  <ul>
-    {% for material in event.materials.all %}
-      <li><a href="{{ material.file.url }}">{{ material.description }}</a></li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p class="text-muted">Материалы ещё не загружены.</p>
-{% endif %}
-
-{% if not is_registered and user.profile.role != 'organizer' %}
-  <a href="{% url 'register_for_event' event.id %}" class="btn btn-success">📌 Зарегистрироваться</a>
-{% elif is_registered %}
-  <p class="text-success">✅ Вы уже зарегистрированы</p>
-{% endif %}
-
-<a href="{% url 'edit_event' event.id %}"   class="btn btn-outline-warning btn-sm">✏️ Редактировать</a>
-<a href="{% url 'delete_event' event.id %}" class="btn btn-outline-danger  btn-sm">🗑️ Удалить</a>
-
-{% timezone "Europe/Moscow" %}
-  {% now "Y-m-d H:i:s" as now_msk %}
-{% endtimezone %}
-
-{% if is_registered and user.profile.role != 'organizer' %}
-  {% if event.end_date|localtime <= now_msk|date:"Y-m-d H:i:s" %}
-      <a href="{% url 'leave_feedback' event.id %}" class="btn btn-outline-success mt-3">📝 Оставить отзыв</a>
-  {% else %}
-      <p class="text-muted mt-3 fst-italic">
-          Оставить отзыв можно после {{ event.end_date|date:"j E Y в H:i" }}
-      </p>
-  {% endif %}
-{% endif %}
+    {% endif %}
 
 {% endblock %}
