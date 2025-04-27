@@ -25,6 +25,8 @@
                 материалы</a>
             <a href="{% url 'view_participants' event.id %}" class="btn btn-outline-info btn-sm">👥 Участники</a>
             <a href="{% url 'event_stats' event.id %}" class="btn btn-outline-dark btn-sm">📊 Статистика</a>
+            <a href="{% url 'edit_event' event.id %}" class="btn btn-outline-warning btn-sm">✏️ Редактировать</a>
+            <a href="{% url 'delete_event' event.id %}" class="btn btn-outline-danger  btn-sm">🗑️ Удалить</a>
         </div>
 
         <div class="mt-4">
@@ -119,9 +121,6 @@
     {% elif is_registered %}
         <p class="text-success">✅ Вы уже зарегистрированы</p>
     {% endif %}
-
-    <a href="{% url 'edit_event' event.id %}" class="btn btn-outline-warning btn-sm">✏️ Редактировать</a>
-    <a href="{% url 'delete_event' event.id %}" class="btn btn-outline-danger  btn-sm">🗑️ Удалить</a>
 
     {% timezone "Europe/Moscow" %}
         {% now "Y-m-d H:i:s" as now_msk %}
