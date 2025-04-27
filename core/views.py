@@ -19,7 +19,7 @@ from xhtml2pdf import pisa
 from django.contrib.auth.views import LoginView
 from babel.dates import format_datetime
 from .pdf_fonts import register_dejavu
-from utils.dates import ru_dt
+from core.dates import ru_dt
 
 def index(request):
     return render(request, 'index.html')
