@@ -364,7 +364,7 @@ def public_register(request, event_id):
 
     # ⏳ Проверка срока регистрации ДО формы
     if event.registration_deadline and timezone.now() > event.registration_deadline:
-        return render(request, 'registration_closed.html', {'event': event})
+        return render(request, 'registration_closed.html', {'event': event, 'no_auth_nav': True})
 
     local_dt = timezone.localtime(event.date)
     formatted_date = format_datetime(local_dt, "d MMMM y 'в' HH:mm", locale='ru')
@@ -409,7 +409,8 @@ def public_register(request, event_id):
     return render(request, 'public_register.html', {
         'form': form,
         'event': event,
-        'submitted': submitted
+        'submitted': submitted,
+        'no_auth_nav': True,
     })
 
 
@@ -464,6 +465,7 @@ def access_via_token(request, access_token):
         'can_leave_feedback': can_leave_feedback,
         'feedback': feedback,
         'activity_feedbacks': activity_feedbacks,
+        'no_auth_nav': True,
     })
 
 
@@ -522,6 +524,7 @@ def leave_feedback_token(request, access_token, activity_id=None):
         'form': form,
         'event': event,
         'activity': activity,
+        'no_auth_nav': True,
     })
 
 
