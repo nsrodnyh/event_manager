@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import StyledRegisterForm
 from django.contrib.auth import login
-from .models import Profile, ControllerProfile
+from .models import Profile, ControllerProfile, Feedback
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from .models import Event, ScheduleItem, Registration
@@ -392,6 +392,33 @@ def access_via_token(request, access_token):
         event.end_date and timezone.localtime() >= event.end_date
     )
 
+    # ➊ Есть ли уже отзыв от этого участника
+    feedback = (
+        Feedback.objects.filter(registration=registration,
+                                event=event,
+                                activity__isnull=True)  # только по мероприятию
+        .first()
+    )
+
+    activity_feedbacks = []
+    for act in schedule:
+        fb = Feedback.objects.filter(
+            registration=registration,
+            activity=act
+        ).first()
+        activity_feedbacks.append({
+            'activity': act,
+            'feedback': fb  # None, если ещё не оставляли
+        })
+
+        for activity in schedule:
+            activity.feedback = (
+                Feedback.objects.filter(
+                    registration=registration,
+                    activity=act
+                ).first()
+            )
+
     return render(request, 'access_event.html', {
         'registration': registration,
         'event': event,
@@ -400,6 +427,8 @@ def access_via_token(request, access_token):
         'event_over': event_over,
         'now': now,
         'can_leave_feedback': can_leave_feedback,
+        'feedback': feedback,
+        'activity_feedbacks': activity_feedbacks,
     })
 
 
