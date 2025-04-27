@@ -19,7 +19,7 @@ from xhtml2pdf import pisa
 from django.contrib.auth.views import LoginView
 from babel.dates import format_datetime
 from .pdf_fonts import register_dejavu
-
+from utils.dates import ru_dt
 
 def index(request):
     return render(request, 'index.html')
@@ -98,9 +98,9 @@ def event_detail(request, event_id):
     )
 
     facts = [
-        ("Дата проведения:", timezone.localtime(event.date).strftime("%d %b %Y · %H:%M")),
-        ("Окончание:", timezone.localtime(event.end_date).strftime("%d %b %Y · %H:%M") if event.end_date else "—"),
-        ("Регистрация до:", timezone.localtime(event.registration_deadline).strftime("%d %b %Y · %H:%M")),
+        ("Дата проведения:", ru_dt(event.date)),
+        ("Окончание:", ru_dt(event.end_date)),
+        ("Регистрация до:", ru_dt(event.registration_deadline)),
         ("Место:", event.location or "(не указано)"),
     ]
 
