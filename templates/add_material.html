@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-3">📎 Добавить материал к мероприятию</h2>
+<p><strong>Мероприятие:</strong> {{ event.title }}</p>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.file.label_tag }}
+                {{ form.file }}
+            </div>
+            <div class="mb-3">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+            </div>
+            <button type="submit" class="btn btn-success">💾 Сохранить материал</button>
+            <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-secondary ms-2">← Назад</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

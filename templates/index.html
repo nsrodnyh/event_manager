@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="text-center py-5">
+    <h1 class="mb-4 display-5">👋 Добро пожаловать в <strong>EventWise</strong></h1>
+    <p class="lead mb-4">
+        Умная система для управления мероприятиями:<br>
+        регистрация, расписание, материалы, посещаемость и отзывы.
+    </p>
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'my_events' %}" class="btn btn-primary btn-lg">Перейти в панель</a>
+    {% else %}
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg">🔐 Войти</a>
+            <a href="{% url 'register' %}" class="btn btn-success btn-lg">🆕 Зарегистрироваться</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

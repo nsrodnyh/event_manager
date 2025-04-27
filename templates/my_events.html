@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">🗂️ Мои мероприятия</h2>
+
+<a href="{% url 'create_event' %}" class="btn btn-success mb-3">➕ Создать мероприятие</a>
+
+{% if events %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for event in events %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ event.title }}</h5>
+                <p class="card-text">
+                    <strong>Дата:</strong> {{ event.date|date:"j E Y в H:i" }}<br>
+                    <strong>Описание:</strong> {{ event.description|truncatechars:100 }}
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'event_detail' event.id %}" class="btn btn-primary btn-sm">📄 Подробнее</a>
+                    <a href="{% url 'view_participants' event.id %}" class="btn btn-outline-secondary btn-sm">👥 Участники</a>
+                    <a href="{% url 'event_stats' event.id %}" class="btn btn-outline-dark btn-sm">📊 Статистика</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">У вас пока нет созданных мероприятий.</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4 text-danger">Удалить мероприятие</h2>
+
+<p>Вы действительно хотите удалить мероприятие <strong>{{ event.title }}</strong>?</p>
+<p>Это действие <strong>нельзя отменить</strong>.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">🗑️ Удалить</button>
+    <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-secondary ms-2">← Отмена</a>
+</form>
+
+{% endblock %}

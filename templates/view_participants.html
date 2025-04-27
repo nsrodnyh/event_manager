@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">👥 Участники мероприятия: {{ event.title }}</h2>
+
+<!-- 🔎 Фильтры -->
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Поиск по имени">
+    </div>
+    <div class="col-md-3">
+        <select name="checked_in" class="form-select">
+            <option value="">Все</option>
+            <option value="yes" {% if checkin_filter == 'yes' %}selected{% endif %}>Только пришли</option>
+            <option value="no" {% if checkin_filter == 'no' %}selected{% endif %}>Только не пришли</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="text" name="note_contains" value="{{ note_query }}" class="form-control" placeholder="Поиск по примечанию">
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">🔍 Фильтровать</button>
+        <a href="{% url 'view_participants' event.id %}" class="btn btn-outline-secondary">↺ Сброс</a>
+        <a href="{% url 'export_participants_xlsx' event.id %}?search={{ search }}&checked_in={{ checkin_filter }}&note_contains={{ note_query }}" class="btn btn-success">⬇️ Экспорт в Excel</a>
+    </div>
+</form>
+
+<!-- 📋 Таблица -->
+<table class="table table-bordered table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>ФИО</th>
+            <th>Email</th>
+            <th>Телефон</th>
+            <th>Посетил</th>
+            <th>Примечание</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reg in registrations %}
+        <tr>
+            <td>{{ reg.full_name }}</td>
+            <td>{{ reg.email }}</td>
+            <td>{{ reg.phone }}</td>
+            <td class="text-center">
+                <button type="button"
+                        class="btn btn-sm {% if reg.checked_in %}btn-success{% else %}btn-outline-secondary{% endif %}"
+                        onclick="toggleCheckin(this, '{% url 'toggle_checkin' event.id reg.id %}')">
+                    {% if reg.checked_in %}✔{% else %}—{% endif %}
+                </button>
+            </td>
+            <td>
+                <form method="post" action="{% url 'update_note' event.id reg.id %}" class="d-flex">
+                    {% csrf_token %}
+
+                    <input type="text" name="note" value="{{ reg.note }}" class="form-control me-2" placeholder="Примечание">
+
+                    <button type="submit" class="btn btn-outline-primary btn-sm">💾</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted">Нет участников</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script>
+  /* ---- CSRF ---- */
+  function getCookie(name) {
+      const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return m ? m[2] : '';
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  /* ---- AJAX-переключатель ---- */
+  function toggleCheckin(btn, url) {
+      fetch(url, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {'X-CSRFToken': csrftoken}
+      })
+      .then(r => r.ok ? r.json() : Promise.reject(r))
+      .then(data => {
+          btn.classList.toggle('btn-success',  data.checked);
+          btn.classList.toggle('btn-outline-secondary', !data.checked);
+          btn.textContent = data.checked ? '✔' : '—';
+      })
+      .catch(() => {
+          alert('Не удалось сохранить отметку.');
+      });
+  }
+</script>
+{% endblock %}

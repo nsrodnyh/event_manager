@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<h2 class="mb-3">📊 Статистика мероприятия: {{ event.title }}</h2>
+
+<div class="mb-3">
+    <strong>Дата:</strong> {{ event.date|date:"j E Y в H:i" }}
+</div>
+
+<div class="mb-4 d-flex gap-2">
+    <a href="{% url 'event_stats_pdf' event.id %}" class="btn btn-outline-secondary">📥 Скачать PDF</a>
+    <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-dark">← Назад</a>
+</div>
+
+<hr>
+
+<h4>👥 Посещаемость</h4>
+<ul>
+    <li>Зарегистрировано: {{ total }}</li>
+    <li>✅ Пришли: {{ attended }}</li>
+    <li>❌ Не пришли: {{ missed }}</li>
+</ul>
+
+<canvas id="attendanceChart" width="400" height="200" class="mb-5"></canvas>
+
+<hr>
+
+<h4>⭐ Средний рейтинг мероприятия:</h4>
+<p class="fs-4">{{ avg_rating|default:"—" }}/5</p>
+
+<hr>
+
+<h4>📈 Рейтинги активностей</h4>
+
+<canvas id="ratingsChart" width="600" height="300" class="mb-4"></canvas>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Активность</th>
+            <th>Средний рейтинг</th>
+            <th>Отзывы</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in activity_data %}
+        <tr>
+            <td>{{ a.title }}</td>
+            <td>{{ a.avg_rating|floatformat:1 }}</td>
+            <td>{{ a.feedback_count }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" class="text-muted text-center">Нет активностей</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- JS-диаграммы -->
+<script>
+    const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+    const ratingsCtx = document.getElementById('ratingsChart').getContext('2d');
+
+    const attendanceChart = new Chart(attendanceCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Пришли', 'Не пришли'],
+            datasets: [{
+                data: [{{ attended }}, {{ missed }}],
+                backgroundColor: ['#4CAF50', '#F44336'],
+            }]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Посещаемость'
+                }
+            }
+        }
+    });
+
+    const ratingsChart = new Chart(ratingsCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for a in activity_data %}'{{ a.title|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Средний рейтинг',
+                data: [{% for a in activity_data %}{{ a.avg_rating|default:"0" }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: '#2196F3'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Рейтинги активностей'
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

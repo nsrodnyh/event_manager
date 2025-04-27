@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">🎫 Контроль посещаемости: {{ event.title }}</h2>
+<p><strong>Дата:</strong> {{ event.date|date:"j E Y в H:i" }}</p>
+{% csrf_token %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    {% for reg in registrations %}
+    <div class="col">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ reg.full_name }}</h5>
+                <p class="card-text text-muted mb-1">{{ reg.phone }}</p>
+                <p class="card-text text-muted small">{{ reg.email }}</p>
+
+                <div class="form-check form-switch mt-3">
+                    <input  type="checkbox"
+                            class="form-check-input"
+                            id="reg-{{ reg.id }}"
+                            {% if reg.checked_in %}checked{% endif %}
+                            onclick="toggleCheckin(this,
+                                '{% url 'toggle_checkin' event.id reg.id %}')">
+
+                    <label class="form-check-label" for="reg-{{ reg.id }}">
+                        {% if reg.checked_in %}
+                            ✅ Отметка: Пришёл
+                        {% else %}
+                            ❌ Не пришёл
+                        {% endif %}
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <p class="text-muted">Нет зарегистрированных участников</p>
+    {% endfor %}
+</div>
+
+<div class="mt-4">
+    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">
+            🚪 Выйти
+        </button>
+    </form>
+</div>
+
+<!-- ========== JS ========== -->
+<script>
+  /* --- получаем CSRF-токен из cookie --- */
+  function getCookie(name) {
+      const v = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+      return v ? v.split('=')[1] : null;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  /* --- AJAX-отметка посещения --- */
+  function toggleCheckin(checkbox, url) {
+      fetch(url, {
+          method: 'POST',
+          credentials: 'same-origin',                 // ← отправляем cookie!
+          headers: {
+              'X-CSRFToken': csrftoken,
+              'X-Requested-With': 'XMLHttpRequest'
+          }
+      })
+      .then(r => {
+          if (!r.ok) throw new Error('fail');
+          return r.json();
+      })
+      .then(data => {
+          const label = checkbox.nextElementSibling;
+          if (data.checked) {
+              label.textContent = '✅ Отметка: Пришёл';
+          } else {
+              label.textContent = '❌ Не пришёл';
+          }
+      })
+      .catch(() => {
+          checkbox.checked = !checkbox.checked;       // откатываем визуально
+          alert('Не удалось сохранить отметку. Проверьте соединение.');
+      });
+  }
+</script>
+
+{% endblock %}

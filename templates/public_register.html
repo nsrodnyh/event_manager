@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">📌 Регистрация на мероприятие</h2>
+
+<p><strong>{{ event.title }}</strong><br>
+Дата проведения: {{ event.date|date:"j E Y в H:i" }}</p>
+
+{% if submitted %}
+    <div class="alert alert-success mt-4">
+        ✅ Вы успешно зарегистрированы на мероприятие!
+        Ожидайте письмо с доступом к материалам.
+    </div>
+{% else %}
+    <div class="card mt-4 mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.full_name.label_tag }}
+                    {{ form.full_name }}
+                </div>
+                <div class="mb-3">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                </div>
+                <div class="mb-3">
+                    {{ form.phone.label_tag }}
+                    {{ form.phone }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-3">📝 Отзыв о мероприятии</h2>
+
+<p><strong>Спасибо за участие!</strong><br>
+Вы можете оставить отзыв о мероприятии <strong>{{ registration.event.title }}</strong>.</p>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                {{ form.rating.label_tag }}
+                {{ form.rating }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.text.label_tag }}
+                {{ form.text }}
+            </div>
+
+            <button type="submit" class="btn btn-success">💬 Отправить отзыв</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

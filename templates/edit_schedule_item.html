@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">✏️ Редактировать активность</h2>
+
+<p><strong>Мероприятие:</strong> {{ event.title }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-success">💾 Сохранить изменения</button>
+    <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-secondary ms-2">← Назад</a>
+</form>
+
+{% endblock %}

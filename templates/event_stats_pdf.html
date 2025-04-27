@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: "DejaVu", sans-serif;
+            font-size: 12pt;
+            margin: 30px;
+        }
+        h2, h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 6px 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+        .small {
+            font-size: 10pt;
+        }
+    </style>
+</head>
+<body>
+
+<h2>📊 Статистика мероприятия</h2>
+
+<p><strong>Название:</strong> {{ event.title }}</p>
+<p><strong>Дата:</strong> {{ event.date|date:"d.m.Y H:i" }}</p>
+
+<h3>👥 Посещаемость</h3>
+<ul>
+    <li>Зарегистрировано: {{ total }}</li>
+    <li>Пришли: {{ attended }}</li>
+    <li>Не пришли: {{ missed }}</li>
+</ul>
+
+<h3>⭐ Средний рейтинг мероприятия</h3>
+<p>{{ avg_rating|default:"—" }}/5</p>
+
+<h3>📈 Рейтинги активностей</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Активность</th>
+            <th>Средний рейтинг</th>
+            <th>Кол-во отзывов</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in activity_data %}
+        <tr>
+            <td>{{ a.title }}</td>
+            <td>{{ a.avg_rating|floatformat:1 }}</td>
+            <td>{{ a.feedback_count }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" class="text-muted text-center">Нет активностей</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p class="small">Сформировано автоматически: {{ now|date:"d.m.Y H:i" }}</p>
+
+</body>
+</html>

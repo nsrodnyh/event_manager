@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">⏳ Регистрация закрыта</h2>
+
+<p>Регистрация на мероприятие <strong>{{ event.title }}</strong> завершена.</p>
+<p><strong>Крайний срок:</strong> {{ event.registration_deadline|date:"j E Y H:i" }}</p>
+
+{% endblock %}
