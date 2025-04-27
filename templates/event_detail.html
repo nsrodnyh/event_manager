@@ -76,13 +76,23 @@
                     <td>{{ item.description|default:"—" }}</td>
                     <td>
                         {% for m in item.materials.all %}
-                            <a href="{{ m.file.url }}" class="d-block">{{ m.description }}</a>
+                            <div class="d-flex align-items-center">
+                                <a href="{{ m.file.url }}" class="flex-grow-1">{{ m.description }}</a>
+
+                                {% if user == event.created_by and user.profile.role == 'organizer' %}
+                                    <a href="{% url 'delete_material' m.id %}"
+                                       class="text-danger ms-2 small"
+                                       title="Удалить файл"
+                                       onclick="return confirm('Удалить «{{ m.description }}»?');">×</a>
+                                {% endif %}
+                            </div>
                         {% empty %}
                             <span class="text-muted">Нет материалов</span>
                         {% endfor %}
+
                         {% if user == event.created_by and user.profile.role == 'organizer' %}
-                            <a href="{% url 'add_material_to_activity' event.id item.id %}" class="btn btn-link btn-sm">+
-                                Материал</a>
+                            <a href="{% url 'add_material_to_activity' event.id item.id %}"
+                               class="btn btn-link btn-sm mt-1">+ Материал</a>
                         {% endif %}
                     </td>
 
@@ -107,19 +117,22 @@
 
     <h4>📂 Материалы к мероприятию</h4>
     {% if event.materials.exists %}
-        <ul>
-            {% for material in event.materials.all %}
-                <li><a href="{{ material.file.url }}">{{ material.description }}</a></li>
+        <ul class="list-unstyled">
+            {% for m in event.materials.all %}
+                <li class="d-flex align-items-center mb-1">
+                    <a href="{{ m.file.url }}" class="flex-grow-1">{{ m.description }}</a>
+
+                    {% if user == event.created_by and user.profile.role == 'organizer' %}
+                        <a href="{% url 'delete_material' m.id %}"
+                           class="text-danger ms-2 small"
+                           title="Удалить файл"
+                           onclick="return confirm('Удалить «{{ m.description }}»?');">×</a>
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
     {% else %}
         <p class="text-muted">Материалы ещё не загружены.</p>
-    {% endif %}
-
-    {% if not is_registered and user.profile.role != 'organizer' %}
-        <a href="{% url 'register_for_event' event.id %}" class="btn btn-success">📌 Зарегистрироваться</a>
-    {% elif is_registered %}
-        <p class="text-success">✅ Вы уже зарегистрированы</p>
     {% endif %}
 
     {% timezone "Europe/Moscow" %}

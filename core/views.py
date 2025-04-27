@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import StyledRegisterForm
 from django.contrib.auth import login
-from .models import Profile, ControllerProfile, Feedback
+from .models import Profile, ControllerProfile, Feedback, Material
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from .models import Event, ScheduleItem, Registration
@@ -698,3 +698,28 @@ class RoleBasedLoginView(LoginView):
 
         # По умолчанию — на главную
         return reverse('index')
+
+
+@login_required
+def delete_material(request, material_id):
+    """
+    Удаляет Material (как «общий» так и «по активности»).
+    Доступно только организатору-создателю мероприятия.
+    """
+    material = get_object_or_404(Material, id=material_id)
+
+    # выясняем мероприятие, к которому принадлежит файл
+    event = material.event or material.activity.event
+
+    if request.user != event.created_by or request.user.profile.role != 'organizer':
+        return redirect('event_detail', event_id=event.id)
+
+    # удаляем сам файл из ФС (если нужно) и запись
+    storage, path = material.file.storage, material.file.path
+    material.delete()
+    try:
+        storage.delete(path)          # безопасно: silently ignore absent file
+    except Exception:
+        pass
+
+    return redirect('event_detail', event_id=event.id)
