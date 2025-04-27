@@ -525,7 +525,7 @@ def controller_panel(request):
         return redirect('index')
 
     # Автодеактивация если мероприятие прошло
-    if profile.event.date < timezone.now():
+    if profile.event.end_date < timezone.now():
         profile.is_active = False
         profile.save()
         return render(request, 'controller_expired.html')
