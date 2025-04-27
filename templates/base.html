@@ -36,20 +36,22 @@
         </a>
 
         <nav class="flex items-center gap-4 text-sm font-medium">
-            {% if user.is_authenticated %}
-                <a href="{% url 'my_events' %}"
-                   class="hover:text-primary-600 transition">Мои мероприятия</a>
+            {% if not no_auth_nav %}
+                {% if user.is_authenticated %}
+                    <a href="{% url 'my_events' %}"
+                       class="hover:text-primary-600 transition">Мои мероприятия</a>
 
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit"
-                            class="hover:text-red-500 transition">
-                        🚪 Выйти
-                    </button>
-                </form>
-            {% else %}
-                <a href="{% url 'login' %}" class="hover:text-primary-600 transition">Вход</a>
-                <a href="{% url 'register' %}" class="hover:text-primary-600 transition">Регистрация</a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="hover:text-red-500 transition">
+                            🚪 Выйти
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="hover:text-primary-600 transition">Вход</a>
+                    <a href="{% url 'register' %}" class="hover:text-primary-600 transition">Регистрация</a>
+                {% endif %}
             {% endif %}
         </nav>
     </div>
