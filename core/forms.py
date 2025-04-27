@@ -38,12 +38,11 @@ class EventForm(forms.ModelForm):
     class Meta:
         model  = Event
         fields = ['title', 'description', 'date', 'end_date',
-                  'location', 'cover', 'registration_deadline']
+                  'location', 'registration_deadline']
         widgets = {
             'title'      : forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'location'   : forms.TextInput(attrs={'class': 'form-control'}),
-            'cover'      : forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
