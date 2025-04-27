@@ -192,7 +192,7 @@
                                 {% if forloop.counter <= fb.rating %}★{% else %}☆{% endif %}
                             {% endfor %}
                             <br>
-                            {{ fb.comment|default:"—"|linebreaksbr }} {# ← вывод текста #}
+                            {{ fb.text|default:"—"|linebreaksbr }} {# ← вывод текста #}
                         </li>
                     {% endfor %}
                 </ul>
