@@ -1,84 +1,97 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
 {% block content %}
 
-<h2 class="mb-4">🎫 Контроль посещаемости: {{ event.title }}</h2>
-<p><strong>Дата:</strong> {{ event.date|date:"j E Y в H:i" }}</p>
-{% csrf_token %}
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+<!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
+<h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-6">
+    🎫 Контроль&nbsp;посещаемости:
+    <span class="text-indigo-600 dark:text-indigo-400">{{ event.title }}</span>
+</h2>
+<p class="mb-10">
+    <span class="font-medium">Дата:</span>
+    {{ event.date|date:"j E Y · H:i" }}
+</p>
+
+<!-- ═╗ Сетка карточек участников ╔═════════════════════ -->
+<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {% for reg in registrations %}
-    <div class="col">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">{{ reg.full_name }}</h5>
-                <p class="card-text text-muted mb-1">{{ reg.phone }}</p>
-                <p class="card-text text-muted small">{{ reg.email }}</p>
+        <div class="bg-white dark:bg-[#262626] rounded-2xl shadow p-6 flex flex-col h-full">
+            <h3 class="text-lg font-medium mb-1">{{ reg.full_name }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{{ reg.phone }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ reg.email }}</p>
 
-                <div class="form-check form-switch mt-3">
-                    <input  type="checkbox"
-                            class="form-check-input"
-                            id="reg-{{ reg.id }}"
-                            {% if reg.checked_in %}checked{% endif %}
-                            onclick="toggleCheckin(this,
-                                '{% url 'toggle_checkin' event.id reg.id %}')">
+            <!-- Toggle -->
+            <div class="mt-auto flex items-center gap-3">
+                <input  id="reg-{{ reg.id }}"
+                        type="checkbox"
+                        {% if reg.checked_in %}checked{% endif %}
+                        class="h-5 w-10 appearance-none rounded-full
+                               bg-gray-300 dark:bg-gray-600
+                               peer transition
+                               checked:bg-teal-500 relative
+                               before:absolute before:top-0.5 before:left-0.5
+                               before:h-4 before:w-4 before:rounded-full
+                               before:bg-white before:transition
+                               peer-checked:before:translate-x-5"
+                        onclick="toggleCheckin(this,'{% url 'toggle_checkin' event.id reg.id %}')">
 
-                    <label class="form-check-label" for="reg-{{ reg.id }}">
-                        {% if reg.checked_in %}
-                            ✅ Отметка: Пришёл
-                        {% else %}
-                            ❌ Не пришёл
-                        {% endif %}
-                    </label>
-                </div>
+                <label for="reg-{{ reg.id }}" class="select-none text-sm">
+                    {% if reg.checked_in %}
+                        ✅ Отметка: Пришёл
+                    {% else %}
+                        ❌ Не&nbsp;пришёл
+                    {% endif %}
+                </label>
             </div>
         </div>
-    </div>
     {% empty %}
-        <p class="text-muted">Нет зарегистрированных участников</p>
+        <p class="text-gray-500 dark:text-gray-400">Нет зарегистрированных участников.</p>
     {% endfor %}
 </div>
 
-<div class="mt-4">
-    <form method="post" action="{% url 'logout' %}" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">
-            🚪 Выйти
-        </button>
-    </form>
-</div>
+<!-- ═╗ Выход ╔═════════════════════════════════════════ -->
+<form method="post" action="{% url 'logout' %}" class="mt-10">
+    {% csrf_token %}
+    <button type="submit"
+            class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+                   border border-gray-300 dark:border-gray-600
+                   text-gray-700 dark:text-gray-200
+                   hover:bg-gray-100 dark:hover:bg-gray-700/60
+                   hover:-translate-y-0.5 active:translate-y-0
+                   shadow-sm hover:shadow transition text-sm font-medium">
+        🚪 <span>Выйти</span>
+    </button>
+</form>
 
-<!-- ========== JS ========== -->
+<!-- ═══════════════════ JS ════════════════════════════ -->
 <script>
-  /* --- получаем CSRF-токен из cookie --- */
-  function getCookie(name) {
-      const v = document.cookie.split('; ').find(row => row.startsWith(name + '='));
-      return v ? v.split('=')[1] : null;
+  /* simple csrf from cookie */
+  function getCookie(name){
+      const v=document.cookie.split('; ').find(row=>row.startsWith(name+'='));
+      return v?decodeURIComponent(v.split('=')[1]):null;
   }
   const csrftoken = getCookie('csrftoken');
 
-  /* --- AJAX-отметка посещения --- */
-  function toggleCheckin(checkbox, url) {
-      fetch(url, {
-          method: 'POST',
-          credentials: 'same-origin',                 // ← отправляем cookie!
-          headers: {
+  function toggleCheckin(checkbox, url){
+      fetch(url,{
+          method:'POST',
+          credentials:'same-origin',
+          headers:{
               'X-CSRFToken': csrftoken,
               'X-Requested-With': 'XMLHttpRequest'
           }
       })
-      .then(r => {
-          if (!r.ok) throw new Error('fail');
+      .then(r=>{
+          if(!r.ok) throw new Error();
           return r.json();
       })
-      .then(data => {
-          const label = checkbox.nextElementSibling;
-          if (data.checked) {
-              label.textContent = '✅ Отметка: Пришёл';
-          } else {
-              label.textContent = '❌ Не пришёл';
-          }
+      .then(data=>{
+          const label = checkbox.parentElement.querySelector('label');
+          label.textContent = data.checked ? '✅ Отметка: Пришёл'
+                                           : '❌ Не пришёл';
       })
-      .catch(() => {
-          checkbox.checked = !checkbox.checked;       // откатываем визуально
+      .catch(()=>{
+          checkbox.checked = !checkbox.checked;
           alert('Не удалось сохранить отметку. Проверьте соединение.');
       });
   }

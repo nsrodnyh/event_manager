@@ -1,9 +1,22 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">⏳ Регистрация закрыта</h2>
+<!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
+<h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-6">
+    ⏳ Регистрация&nbsp;закрыта
+</h2>
 
-<p>Регистрация на мероприятие <strong>{{ event.title }}</strong> завершена.</p>
-<p><strong>Крайний срок:</strong> {{ event.registration_deadline|date:"j E Y H:i" }}</p>
+<!-- ═╗ Сообщение ╔═════════════════════════════════════ -->
+<div class="max-w-xl bg-white dark:bg-[#262626] rounded-3xl shadow p-8">
+    <p class="mb-2">
+        Регистрация на&nbsp;мероприятие
+        <strong class="text-indigo-600 dark:text-indigo-400">{{ event.title }}</strong>
+        завершена.
+    </p>
+    <p class="text-gray-600 dark:text-gray-400">
+        <span class="font-medium">Крайний срок:</span>
+        {{ event.registration_deadline|date:"j E Y · H:i" }}
+    </p>
+</div>
 
 {% endblock %}

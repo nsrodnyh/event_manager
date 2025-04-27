@@ -1,114 +1,154 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<h2 class="mb-3">📊 Статистика мероприятия: {{ event.title }}</h2>
+<h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-6">
+    📊 Статистика мероприятия:
+    <span class="text-indigo-600 dark:text-indigo-400">{{ event.title }}</span>
+</h2>
 
-<div class="mb-3">
-    <strong>Дата:</strong> {{ event.date|date:"j E Y в H:i" }}
+<p class="mb-8">
+    <span class="font-medium">Дата:</span>
+    {{ event.date|date:"j E Y · H:i" }}
+</p>
+
+<div class="flex flex-wrap gap-3 mb-10">
+    <a href="{% url 'event_stats_pdf' event.id %}"
+       class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+              border border-gray-300 dark:border-gray-600
+              text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-gray-700/60
+              hover:-translate-y-0.5 active:translate-y-0
+              shadow-sm hover:shadow transition text-sm font-medium">
+        📥 <span>Скачать&nbsp;PDF</span>
+    </a>
+
+    <a href="{% url 'event_detail' event.id %}"
+       class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+              bg-gray-800/90 text-gray-100 hover:bg-gray-900
+              hover:-translate-y-0.5 active:translate-y-0
+              shadow hover:shadow-lg transition text-sm font-medium">
+        ← <span>Назад</span>
+    </a>
 </div>
 
-<div class="mb-4 d-flex gap-2">
-    <a href="{% url 'event_stats_pdf' event.id %}" class="btn btn-outline-secondary">📥 Скачать PDF</a>
-    <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-dark">← Назад</a>
-</div>
-
-<hr>
-
-<h4>👥 Посещаемость</h4>
-<ul>
-    <li>Зарегистрировано: {{ total }}</li>
-    <li>✅ Пришли: {{ attended }}</li>
-    <li>❌ Не пришли: {{ missed }}</li>
+<!-- ═╗ Посещаемость ╔════════════════════ -->
+<h3 class="text-xl font-semibold mb-4">👥 Посещаемость</h3>
+<ul class="list-disc list-inside mb-6">
+    <li>Зарегистрировано: <strong>{{ total }}</strong></li>
+    <li>✅ Пришли: <strong>{{ attended }}</strong></li>
+    <li>❌ Не пришли: <strong>{{ missed }}</strong></li>
 </ul>
 
-<canvas id="attendanceChart" width="400" height="200" class="mb-5"></canvas>
+<div class="w-full sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto mb-16">
+    <div class="relative" style="aspect-ratio: 1 / 1;">
+        <canvas id="attendanceChart"></canvas>
+    </div>
+</div>
 
-<hr>
+<!-- ═╗ Средний рейтинг ╔═════════════════ -->
+<h3 class="text-xl font-semibold mb-4">⭐ Средний рейтинг мероприятия</h3>
+<p class="text-3xl font-semibold mb-16">
+    {{ avg_rating|default:"—" }}/5
+</p>
 
-<h4>⭐ Средний рейтинг мероприятия:</h4>
-<p class="fs-4">{{ avg_rating|default:"—" }}/5</p>
+<!-- ═╗ Рейтинги активностей ╔════════════ -->
+<h3 class="text-xl font-semibold mb-4">📈 Рейтинги активностей</h3>
 
-<hr>
+<div class="w-full sm:max-w-lg lg:max-w-3xl mx-auto mb-10">
+    <div class="relative" style="aspect-ratio: 2 / 1;">
+        <canvas id="ratingsChart"></canvas>
+    </div>
+</div>
 
-<h4>📈 Рейтинги активностей</h4>
-
-<canvas id="ratingsChart" width="600" height="300" class="mb-4"></canvas>
-
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
+<table class="w-full text-sm border-collapse mb-20">
+    <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100">
         <tr>
-            <th>Активность</th>
-            <th>Средний рейтинг</th>
-            <th>Отзывы</th>
+            <th class="p-3 text-left">Активность</th>
+            <th class="p-3">Средний&nbsp;рейтинг</th>
+            <th class="p-3">Отзывы</th>
         </tr>
     </thead>
     <tbody>
         {% for a in activity_data %}
-        <tr>
-            <td>{{ a.title }}</td>
-            <td>{{ a.avg_rating|floatformat:1 }}</td>
-            <td>{{ a.feedback_count }}</td>
-        </tr>
+            <tr class="border-b border-gray-200 dark:border-gray-600">
+                <td class="p-3">{{ a.title }}</td>
+                <td class="p-3 text-center">{{ a.avg_rating|floatformat:1 }}</td>
+                <td class="p-3 text-center">{{ a.feedback_count }}</td>
+            </tr>
         {% empty %}
-        <tr>
-            <td colspan="3" class="text-muted text-center">Нет активностей</td>
-        </tr>
+            <tr>
+                <td colspan="3" class="p-4 text-center text-gray-500">
+                    Нет активностей
+                </td>
+            </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<!-- JS-диаграммы -->
+<!-- ════════ JS (адаптивные графики) ════════ -->
 <script>
-    const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-    const ratingsCtx = document.getElementById('ratingsChart').getContext('2d');
+const attendanceCtx = document.getElementById('attendanceChart');
+new Chart(attendanceCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Пришли', 'Не пришли'],
+        datasets: [{
+            data: [{{ attended }}, {{ missed }}],
+            backgroundColor: ['#14b8a6', '#ef4444']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins:{ title:{ display:true, text:'Посещаемость' } }
+    }
+});
 
-    const attendanceChart = new Chart(attendanceCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Пришли', 'Не пришли'],
-            datasets: [{
-                data: [{{ attended }}, {{ missed }}],
-                backgroundColor: ['#4CAF50', '#F44336'],
-            }]
-        },
-        options: {
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Посещаемость'
-                }
-            }
-        }
-    });
+const ratingsCtx = document.getElementById('ratingsChart');
+new Chart(ratingsCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for a in activity_data %}'{{ a.title|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets:[{
+            label:'Средний рейтинг',
+            data:[{% for a in activity_data %}{{ a.avg_rating|default:"0" }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor:'#6366f1'
+        }]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
 
-    const ratingsChart = new Chart(ratingsCtx, {
-        type: 'bar',
-        data: {
-            labels: [{% for a in activity_data %}'{{ a.title|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-            datasets: [{
-                label: 'Средний рейтинг',
-                data: [{% for a in activity_data %}{{ a.avg_rating|default:"0" }}{% if not forloop.last %}, {% endif %}{% endfor %}],
-                backgroundColor: '#2196F3'
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 5
-                }
+        /* ───── Оси ───── */
+        scales:{
+            x:{
+                ticks:{ color:'#d1d5db' },                       // подписи оси-X
+                grid :{ color:'rgba(255,255,255,.05)' }
             },
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Рейтинги активностей'
-                }
+            y:{
+                beginAtZero:true, max:5,
+                ticks:{ color:'#d1d5db' },                       // подписи оси-Y
+                grid :{ color:'rgba(255,255,255,.05)' }
+            }
+        },
+
+        /* ───── Титул и легенда ───── */
+        plugins:{
+            title:{
+                display:true,
+                text:'Рейтинги активностей',
+                color:'#d1d5db',
+                padding:{bottom:12},
+                font:{ size:16, weight:'600' }
+            },
+            legend:{
+                labels:{ color:'#d1d5db' }
             }
         }
-    });
+    }
+});
 </script>
 
 {% endblock %}

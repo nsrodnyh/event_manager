@@ -1,29 +1,65 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load widget_tweaks %}
 {% block content %}
 
-<h2 class="mb-3">📎 Добавить материал к активности</h2>
+    <!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
+    <h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-6">
+        📎 Добавить&nbsp;материал к&nbsp;активности
+    </h2>
 
-<div class="mb-3">
-    <strong>Мероприятие:</strong> {{ event.title }}<br>
-    <strong>Активность:</strong> {{ activity.title }}
-</div>
+    <!-- Информация о событии и активности -->
+    <p class="mb-8">
+        <span class="font-medium">Мероприятие:</span>
+        <span class="text-indigo-600 dark:text-indigo-400">{{ event.title }}</span><br>
+        <span class="font-medium">Активность:</span>
+        <span class="text-indigo-600 dark:text-indigo-400">{{ activity.title }}</span>
+    </p>
 
-<div class="card mt-4">
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
+    <!-- ═╗ Форма ╔═════════════════════════════════════════ -->
+    <div class="max-w-2xl bg-white dark:bg-[#262626] rounded-3xl shadow p-8">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
-            <div class="mb-3">
-                {{ form.file.label_tag }}
-                {{ form.file }}
+
+            {# ====== Файл ====== #}
+            <div>
+                <label for="{{ form.file.id_for_label }}" class="sr-only">
+                    {{ form.file.label }}
+                </label>
+                {{ form.file|add_class:"block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer" }}
             </div>
-            <div class="mb-3">
-                {{ form.description.label_tag }}
-                {{ form.description }}
+
+            {# ====== Описание ====== #}
+            <div>
+                <label for="{{ form.description.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.description.label }}
+                </label>
+                {{ form.description|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
             </div>
-            <button type="submit" class="btn btn-success">💾 Сохранить материал</button>
-            <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-secondary ms-2">← Назад</a>
+
+            {# ====== Кнопки ====== #}
+            <div class="flex flex-wrap gap-3 pt-2">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+                           bg-teal-500 hover:bg-teal-600
+                           hover:-translate-y-0.5 active:translate-y-0
+                           shadow hover:shadow-lg transition
+                           text-white text-sm font-medium">
+                    💾 <span>Сохранить&nbsp;материал</span>
+                </button>
+
+                <a href="{% url 'event_detail' event.id %}"
+                   class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+                      border border-gray-300 dark:border-gray-600
+                      text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-700/60
+                      hover:-translate-y-0.5 active:translate-y-0
+                      shadow-sm hover:shadow transition
+                      text-sm font-medium">
+                    ← <span>Назад</span>
+                </a>
+            </div>
         </form>
     </div>
-</div>
 
 {% endblock %}

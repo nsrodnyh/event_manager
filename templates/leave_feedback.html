@@ -1,29 +1,91 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load widget_tweaks %}
 {% block content %}
 
-<h2 class="mb-3">📝 Отзыв о мероприятии</h2>
+<!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
+<h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-6">
+    📝 Отзыв о&nbsp;мероприятии
+</h2>
 
-<p><strong>Мероприятие:</strong> {{ event.title }}</p>
+<p class="mb-8">
+    <span class="font-medium">Мероприятие:</span>
+    <span class="text-indigo-600 dark:text-indigo-400">{{ event.title }}</span>
+</p>
 
-<div class="card mt-4">
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
+<!-- ═╗ Форма ╔═════════════════════════════════════════ -->
+<div class="max-w-2xl bg-white dark:bg-[#262626] rounded-3xl shadow p-8">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
 
-            <div class="mb-3">
-                {{ form.rating.label_tag }}
-                {{ form.rating }}
+        {# ====== Рейтинг (radio → звёзды) ====== #}
+        <div>
+            <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {{ form.rating.label }}
+            </span>
+
+            <div class="flex flex-row-reverse justify-end gap-1">
+                {% for choice in form.rating.field.choices %}
+                    {% with value=choice.0 label=choice.1 %}
+                        <input  type="radio"
+                                name="{{ form.rating.html_name }}"
+                                value="{{ value }}"
+                                id="star{{ value }}"
+                                class="peer hidden"
+                                {% if form.rating.value|stringformat:"s" == value|stringformat:"s" %}
+                                    checked
+                                {% endif %}>
+
+                        <label for="star{{ value }}"
+                               class="cursor-pointer text-3xl
+                                      text-gray-400 peer-checked:text-amber-400
+                                      hover:text-amber-300 transition">
+                            ★
+                        </label>
+                    {% endwith %}
+                {% endfor %}
             </div>
 
-            <div class="mb-3">
-                {{ form.text.label_tag }}
-                {{ form.text }}
-            </div>
+            {% if form.rating.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.rating.errors|join:", " }}</p>
+            {% endif %}
+        </div>
 
-            <button type="submit" class="btn btn-success">💾 Отправить отзыв</button>
-            <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-secondary ms-2">← Назад</a>
-        </form>
-    </div>
+        {# ====== Текст отзыва ====== #}
+        <div>
+            <label for="{{ form.text.id_for_label }}"
+                   class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {{ form.text.label }}
+            </label>
+            {{ form.text|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500text-sm px-3 py-2" }}
+
+            {% if form.text.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.text.errors|join:", " }}</p>
+            {% endif %}
+        </div>
+
+        {# ====== Кнопки ====== #}
+        <div class="flex flex-wrap gap-3 pt-2">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+                           bg-teal-500 hover:bg-teal-600
+                           hover:-translate-y-0.5 active:translate-y-0
+                           shadow hover:shadow-lg transition
+                           text-white text-sm font-medium">
+                💾 <span>Отправить&nbsp;отзыв</span>
+            </button>
+
+            <a href="{% url 'event_detail' event.id %}"
+               class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+                      border border-gray-300 dark:border-gray-600
+                      text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-700/60
+                      hover:-translate-y-0.5 active:translate-y-0
+                      shadow-sm hover:shadow transition
+                      text-sm font-medium">
+                ← <span>Назад</span>
+            </a>
+        </div>
+    </form>
 </div>
 
 {% endblock %}

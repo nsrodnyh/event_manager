@@ -97,6 +97,13 @@ def event_detail(request, event_id):
         reverse('public_register', args=[event.id])
     )
 
+    facts = [
+        ("Дата проведения:", timezone.localtime(event.date).strftime("%d %b %Y · %H:%M")),
+        ("Окончание:", timezone.localtime(event.end_date).strftime("%d %b %Y · %H:%M") if event.end_date else "—"),
+        ("Регистрация до:", timezone.localtime(event.registration_deadline).strftime("%d %b %Y · %H:%M")),
+        ("Место:", event.location or "(не указано)"),
+    ]
+
     return render(request, 'event_detail.html', {
         'event': event,
         'is_registered': is_registered,
@@ -104,6 +111,7 @@ def event_detail(request, event_id):
         'avg_event_rating': avg_event_rating,
         'feedback_by_activity': feedback_by_activity,
         'public_link': public_link,
+        'facts': facts,
     })
 
 

@@ -1,36 +1,63 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load widget_tweaks %}
 {% block content %}
 
-<h2 class="mb-4">📌 Регистрация на мероприятие</h2>
+<h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-6">
+    📌 Регистрация&nbsp;на&nbsp;мероприятие
+</h2>
 
-<p><strong>{{ event.title }}</strong><br>
-Дата проведения: {{ event.date|date:"j E Y в H:i" }}</p>
+<p class="mb-8">
+    <span class="text-indigo-600 dark:text-indigo-400 font-medium">{{ event.title }}</span><br>
+    Дата&nbsp;проведения: {{ event.date|date:"j E Y · H:i" }}
+</p>
 
 {% if submitted %}
-    <div class="alert alert-success mt-4">
-        ✅ Вы успешно зарегистрированы на мероприятие!
+    <div class="max-w-lg bg-teal-50 text-teal-800 dark:bg-teal-800/20 dark:text-teal-100
+                rounded-2xl px-6 py-4 mx-auto">
+        ✅ Вы успешно зарегистрированы на мероприятие!<br>
         Ожидайте письмо с доступом к материалам.
     </div>
 {% else %}
-    <div class="card mt-4 mx-auto" style="max-width: 600px;">
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-3">
-                    {{ form.full_name.label_tag }}
-                    {{ form.full_name }}
-                </div>
-                <div class="mb-3">
-                    {{ form.email.label_tag }}
-                    {{ form.email }}
-                </div>
-                <div class="mb-3">
-                    {{ form.phone.label_tag }}
-                    {{ form.phone }}
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
-            </form>
-        </div>
+    <div class="max-w-lg bg-white dark:bg-[#262626] rounded-3xl shadow p-8 mx-auto">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            {# ФИО #}
+            <div>
+                <label for="{{ form.full_name.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.full_name.label }}
+                </label>
+                {{ form.full_name|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
+            </div>
+
+            {# Email #}
+            <div>
+                <label for="{{ form.email.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.email.label }}
+                </label>
+                {{ form.email|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
+            </div>
+
+            {# Телефон #}
+            <div>
+                <label for="{{ form.phone.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.phone.label }}
+                </label>
+                {{ form.phone|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
+            </div>
+
+            <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 w-full px-5 py-2 rounded-full
+                           bg-indigo-600 hover:bg-indigo-700
+                           hover:-translate-y-0.5 active:translate-y-0
+                           shadow hover:shadow-lg transition
+                           text-white text-sm font-medium">
+                ✍️ <span>Зарегистрироваться</span>
+            </button>
+        </form>
     </div>
 {% endif %}
 

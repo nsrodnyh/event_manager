@@ -1,35 +1,71 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load widget_tweaks %}
 {% block content %}
 
-<h2 class="mb-4">🆕 Регистрация аккаунта</h2>
+<!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
+<h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-6">
+    🆕 Регистрация&nbsp;аккаунта
+</h2>
 
-<div class="card mx-auto" style="max-width: 500px;">
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
+<!-- ═╗ Форма ╔═════════════════════════════════════════ -->
+<div class="max-w-lg bg-white dark:bg-[#262626] rounded-3xl shadow p-8 mx-auto">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
 
-            {% if form.errors %}
-                <div class="alert alert-danger">
-                    Проверьте правильность ввода данных
-                </div>
+        {# ====== Ошибки формы ====== #}
+        {% if form.non_field_errors %}
+            <div class="bg-red-50 text-red-700 dark:bg-red-800/20 dark:text-red-100
+                        rounded-lg px-4 py-3 text-sm">
+                {{ form.non_field_errors|join:", " }}
+            </div>
+        {% endif %}
+
+        {# ====== Username ====== #}
+        <div>
+            <label for="{{ form.username.id_for_label }}"
+                   class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {{ form.username.label }}
+            </label>
+            {{ form.username|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
+            {% if form.username.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.username.errors|join:", " }}</p>
             {% endif %}
+        </div>
 
-            <div class="mb-3">
-                {{ form.username.label_tag }}
-                {{ form.username }}
-            </div>
-            <div class="mb-3">
-                {{ form.password1.label_tag }}
-                {{ form.password1 }}
-            </div>
-            <div class="mb-3">
-                {{ form.password2.label_tag }}
-                {{ form.password2 }}
-            </div>
+        {# ====== Password1 ====== #}
+        <div>
+            <label for="{{ form.password1.id_for_label }}"
+                   class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {{ form.password1.label }}
+            </label>
+            {{ form.password1|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
+            {% if form.password1.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.password1.errors|join:", " }}</p>
+            {% endif %}
+        </div>
 
-            <button type="submit" class="btn btn-success w-100">Создать аккаунт</button>
-        </form>
-    </div>
+        {# ====== Password2 ====== #}
+        <div>
+            <label for="{{ form.password2.id_for_label }}"
+                   class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {{ form.password2.label }}
+            </label>
+            {{ form.password2|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
+            {% if form.password2.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.password2.errors|join:", " }}</p>
+            {% endif %}
+        </div>
+
+        {# ====== Кнопка ====== #}
+        <button type="submit"
+                class="inline-flex items-center justify-center gap-2 w-full px-5 py-2 rounded-full
+                       bg-indigo-600 hover:bg-indigo-700
+                       hover:-translate-y-0.5 active:translate-y-0
+                       shadow hover:shadow-lg transition
+                       text-white text-sm font-medium">
+            ✅ <span>Создать&nbsp;аккаунт</span>
+        </button>
+    </form>
 </div>
 
 {% endblock %}

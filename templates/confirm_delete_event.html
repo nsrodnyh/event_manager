@@ -1,15 +1,43 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4 text-danger">Удалить мероприятие</h2>
+<!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
+<h2 class="text-2xl md:text-3xl font-semibold text-red-600 flex items-center gap-2 mb-6">
+    🗑️ Удалить&nbsp;мероприятие
+</h2>
 
-<p>Вы действительно хотите удалить мероприятие <strong>{{ event.title }}</strong>?</p>
-<p>Это действие <strong>нельзя отменить</strong>.</p>
+<!-- ═╗ Предупреждение ╔════════════════════════════════ -->
+<div class="max-w-xl bg-white dark:bg-[#262626] rounded-3xl shadow p-8 mb-10">
+    <p class="mb-2">
+        Вы действительно хотите удалить мероприятие
+        <strong class="text-indigo-600 dark:text-indigo-400">{{ event.title }}</strong>?
+    </p>
+    <p class="text-red-600 dark:text-red-400 font-medium">
+        Это действие нельзя отменить.
+    </p>
+</div>
 
-<form method="post">
+<!-- ═╗ Кнопки ╔════════════════════════════════════════ -->
+<form method="post" class="flex flex-wrap gap-3">
     {% csrf_token %}
-    <button type="submit" class="btn btn-danger">🗑️ Удалить</button>
-    <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-secondary ms-2">← Отмена</a>
+
+    <button type="submit"
+            class="inline-flex items-center gap-2 px-6 py-2 rounded-full
+                   bg-red-500/90 text-white hover:bg-red-600
+                   hover:-translate-y-0.5 active:translate-y-0
+                   shadow hover:shadow-lg transition text-sm font-medium">
+        🗑️ <span>Удалить</span>
+    </button>
+
+    <a href="{% url 'event_detail' event.id %}"
+       class="inline-flex items-center gap-2 px-6 py-2 rounded-full
+              border border-gray-300 dark:border-gray-600
+              text-gray-700 dark:text-gray-200
+              hover:bg-gray-100 dark:hover:bg-gray-700/60
+              hover:-translate-y-0.5 active:translate-y-0
+              shadow-sm hover:shadow transition text-sm font-medium">
+        ← <span>Отмена</span>
+    </a>
 </form>
 
 {% endblock %}

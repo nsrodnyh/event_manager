@@ -1,40 +1,94 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load widget_tweaks %}
 {% block content %}
 
-<h2 class="mb-3">🎉 Создать мероприятие</h2>
+    <!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
+    <h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-6">
+        🎉 Создать&nbsp;мероприятие
+    </h2>
 
-<div class="card mt-4">
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
+    <!-- ═╗ Форма ╔═════════════════════════════════════════ -->
+    <div class="max-w-2xl bg-white dark:bg-[#262626] rounded-3xl shadow p-8">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
-            <div class="mb-3">
-                {{ form.title.label_tag }}
-                {{ form.title }}
+
+            <!-- Название -->
+            <div>
+                <label for="{{ form.title.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.title.label }}
+                </label>
+                {{ form.title|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
             </div>
-            <div class="mb-3">
-                {{ form.description.label_tag }}
-                {{ form.description }}
+
+            <!-- Описание -->
+            <div>
+                <label for="{{ form.description.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.description.label }}
+                </label>
+                {{ form.description|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
             </div>
-            <div class="mb-3">
-                {{ form.date.label_tag }}
-                {{ form.date }}
+
+            <!-- Дата начала -->
+            <div>
+                <label for="{{ form.date.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.date.label }}
+                </label>
+                {{ form.date|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
             </div>
-            <div class="mb-3">
-                {{ form.end_date.label_tag }}
-                {{ form.end_date }}
+
+            <!-- Дата окончания -->
+            <div>
+                <label for="{{ form.end_date.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.end_date.label }}
+                </label>
+                {{ form.end_date|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
             </div>
-            <div class="mb-3">
-                {{ form.location.label_tag }}
-                {{ form.location }}
+
+            <!-- Локация -->
+            <div>
+                <label for="{{ form.location.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.location.label }}
+                </label>
+                {{ form.location|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
             </div>
-            <div class="mb-3">
-                {{ form.registration_deadline.label_tag }}
-                {{ form.registration_deadline }}
+
+            <!-- Дедлайн регистрации -->
+            <div>
+                <label for="{{ form.registration_deadline.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ form.registration_deadline.label }}
+                </label>
+                {{ form.registration_deadline|add_class:"w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2" }}
             </div>
-            <button type="submit" class="btn btn-success">💾 Создать</button>
-            <a href="{% url 'my_events' %}" class="btn btn-outline-secondary ms-2">← Назад</a>
+
+            <!-- Кнопки -->
+            <div class="flex flex-wrap gap-3 pt-2">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+                           bg-teal-500 hover:bg-teal-600
+                           hover:-translate-y-0.5 active:translate-y-0
+                           shadow hover:shadow-lg transition
+                           text-white text-sm font-medium">
+                    💾 <span>Создать</span>
+                </button>
+
+                <a href="{% url 'my_events' %}"
+                   class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+                      border border-gray-300 dark:border-gray-600
+                      text-gray-700 dark:text-gray-200
+                      hover:bg-gray-100 dark:hover:bg-gray-700/60
+                      hover:-translate-y-0.5 active:translate-y-0
+                      shadow-sm hover:shadow transition
+                      text-sm font-medium">
+                    ← <span>Назад</span>
+                </a>
+            </div>
         </form>
     </div>
-</div>
 
 {% endblock %}
