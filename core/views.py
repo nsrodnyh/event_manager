@@ -1,5 +1,4 @@
 import os
-
 from django.db.models import Avg
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
@@ -11,7 +10,7 @@ from django.views.decorators.http import require_POST
 from .models import Event, ScheduleItem, Registration
 from .forms import EventForm, ScheduleItemForm, MaterialForm, FeedbackForm, PublicRegistrationForm
 import openpyxl
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.conf import settings
@@ -19,7 +18,6 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.contrib.auth.views import LoginView
 from babel.dates import format_datetime
-
 from .pdf_fonts import register_dejavu
 
 
@@ -53,14 +51,30 @@ def register(request):
 
 @login_required
 def event_list(request):
-    events = Event.objects.all()
-    return render(request, 'event_list.html', {'events': events})
+    """
+    Организатор -> только свои события.
+    Контролёр -> события, к которым привязан.
+    Любой другой -> всё (или ничего, если так нужно).
+    """
+    role = getattr(request.user.profile, 'role', '')
 
+    if role == 'organizer':
+        events = Event.objects.filter(created_by=request.user).order_by('-date')
+    elif role == 'controller':
+        events = Event.objects.filter(controllerprofile__user=request.user).distinct()
+    else:
+        events = Event.objects.all().order_by('-date')
+
+    return render(request, 'event_list.html', {'events': events})
 
 
 @login_required
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+
+    if (request.user.profile.role == 'organizer'
+            and request.user != event.created_by):
+        raise Http404("Мероприятие не найдено")
 
     is_registered = False
     if request.user.is_authenticated:
@@ -114,6 +128,10 @@ def create_event(request):
 def add_schedule_item(request, event_id):
     event = Event.objects.get(id=event_id)
 
+    if (request.user.profile.role == 'organizer'
+            and request.user != event.created_by):
+        raise Http404("Мероприятие не найдено")
+
     if not request.user.profile.role == 'organizer' or event.created_by != request.user:
         return redirect('event_detail', event_id=event_id)
 
@@ -133,6 +151,10 @@ def add_schedule_item(request, event_id):
 @login_required
 def add_material(request, event_id):
     event = Event.objects.get(id=event_id)
+
+    if (request.user.profile.role == 'organizer'
+            and request.user != event.created_by):
+        raise Http404("Мероприятие не найдено")
 
     if not request.user.profile.role == 'organizer' or event.created_by != request.user:
         return redirect('event_detail', event_id=event_id)
@@ -184,6 +206,11 @@ def leave_feedback(request, event_id):
 @login_required
 def view_participants(request, event_id):
     event = Event.objects.get(id=event_id)
+
+    if (request.user.profile.role == 'organizer'
+            and request.user != event.created_by):
+        raise Http404("Мероприятие не найдено")
+
     if not request.user.profile.role == 'organizer' or event.created_by != request.user:
         return redirect('event_detail', event_id=event_id)
 
@@ -615,6 +642,10 @@ def event_stats_pdf(request, event_id):
 def edit_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
+    if (request.user.profile.role == 'organizer'
+            and request.user != event.created_by):
+        raise Http404("Мероприятие не найдено")
+
     if request.user != event.created_by or request.user.profile.role != 'organizer':
         return redirect('event_detail', event_id=event_id)
 
@@ -633,6 +664,10 @@ def edit_event(request, event_id):
 def delete_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
+    if (request.user.profile.role == 'organizer'
+            and request.user != event.created_by):
+        raise Http404("Мероприятие не найдено")
+
     if request.user != event.created_by or request.user.profile.role != 'organizer':
         return redirect('event_detail', event_id=event_id)
 
@@ -647,6 +682,10 @@ def delete_event(request, event_id):
 def edit_schedule_item(request, item_id):
     item = get_object_or_404(ScheduleItem, id=item_id)
     event = item.event
+
+    if (request.user.profile.role == 'organizer'
+            and request.user != event.created_by):
+        raise Http404("Мероприятие не найдено")
 
     if request.user != event.created_by or request.user.profile.role != 'organizer':
         return redirect('event_detail', event_id=event.id)
@@ -670,6 +709,10 @@ def edit_schedule_item(request, item_id):
 def delete_schedule_item(request, item_id):
     item = get_object_or_404(ScheduleItem, id=item_id)
     event = item.event
+
+    if (request.user.profile.role == 'organizer'
+            and request.user != event.created_by):
+        raise Http404("Мероприятие не найдено")
 
     if request.user != event.created_by or request.user.profile.role != 'organizer':
         return redirect('event_detail', event_id=event.id)
