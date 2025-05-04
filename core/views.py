@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from .models import Event, ScheduleItem, Registration
 from .forms import EventForm, ScheduleItemForm, MaterialForm, FeedbackForm, PublicRegistrationForm
 import openpyxl
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.conf import settings
@@ -497,36 +497,51 @@ def add_material_to_activity(request, event_id, activity_id):
     })
 
 
+@require_POST
 def leave_feedback_token(request, access_token, activity_id=None):
+    # 1) ищем регистрацию и событие
     registration = get_object_or_404(Registration, access_token=access_token)
     event = registration.event
 
+    # 2) проверяем, что форма отзыва доступна по времени
+    now = timezone.localtime()
     if activity_id:
         activity = get_object_or_404(ScheduleItem, id=activity_id, event=event)
-        if activity.end_time >= timezone.localtime():
-            return HttpResponse("Оставить отзыв можно только после окончания активности.")
+        if activity.end_time > now:
+            return JsonResponse(
+                {'error': 'too_early', 'message': 'Отзыв доступен после окончания активности.'},
+                status=400
+            )
     else:
-        if event.date >= timezone.localtime():
-            return HttpResponse("Оставить отзыв можно только после окончания мероприятия.")
+        if event.end_date and event.end_date > now:
+            return JsonResponse(
+                {'error': 'too_early', 'message': 'Отзыв доступен после окончания мероприятия.'},
+                status=400
+            )
         activity = None
 
-    if request.method == 'POST':
-        form = FeedbackForm(request.POST)
-        if form.is_valid():
-            feedback = form.save(commit=False)
-            feedback.registration = registration
-            feedback.event = event if activity is None else None
-            feedback.activity = activity
-            feedback.save()
-            return HttpResponse("Спасибо за ваш отзыв!")
-    else:
-        form = FeedbackForm()
+    # 3) разбираем данные от клиента
+    form = FeedbackForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse({'error': 'invalid', 'errors': form.errors}, status=400)
 
-    return render(request, 'leave_feedback_token.html', {
-        'form': form,
-        'event': event,
-        'activity': activity,
-        'no_auth_nav': True,
+    # 4) сохраняем
+    feedback = form.save(commit=False)
+    feedback.registration = registration
+    if activity:
+        feedback.activity = activity
+    else:
+        feedback.event = event
+    feedback.save()
+
+    # 5) возвращаем результаты клиенту
+    return JsonResponse({
+        'success': True,
+        'feedback': {
+            'text': feedback.text,
+            'rating': feedback.rating,
+            'created_at': feedback.created_at.isoformat(),
+        }
     })
 
 
