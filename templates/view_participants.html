@@ -2,166 +2,184 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
-<h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-8">
-    👥 Участники&nbsp;мероприятия:
-    <span class="text-indigo-600 dark:text-indigo-400">{{ event.title }}</span>
-</h2>
+    <!-- ═╗ Заголовок ╔═════════════════════════════════════ -->
+    <h2 class="text-2xl md:text-3xl font-semibold flex items-center gap-2 mb-8">
+        👥 Участники&nbsp;мероприятия:
+        <span class="text-indigo-600 dark:text-indigo-400">{{ event.title }}</span>
+    </h2>
 
-<!-- ═╗ Фильтры ╔═══════════════════════════════════════ -->
-<form method="get"
-      class="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end mb-10">
-    <!-- Поиск -->
-    <div class="md:w-60">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Поиск&nbsp;по&nbsp;имени
-        </label>
-        <input type="text" name="search" value="{{ search }}"
-               class="w-full rounded-lg border-gray-300 dark:border-gray-600
+    <!-- ═╗ Фильтры ╔═══════════════════════════════════════ -->
+    <form method="get"
+          class="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end mb-10">
+        <!-- Поиск -->
+        <div class="md:w-60">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Поиск&nbsp;по&nbsp;имени
+            </label>
+            <input type="text" name="search" value="{{ search }}"
+                   class="w-full rounded-lg border-gray-300 dark:border-gray-600
                       bg-gray-50 dark:bg-gray-700/40
                       text-gray-900 dark:text-gray-100 text-sm px-3 py-2
                       focus:border-indigo-500 focus:ring-indigo-500">
-    </div>
+        </div>
 
-    <!-- Посетил / не пришёл -->
-    <div class="md:w-48">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Статус&nbsp;посещения
-        </label>
-        <select name="checked_in"
-                class="w-full rounded-lg border-gray-300 dark:border-gray-600
+        <!-- Посетил / не пришёл -->
+        <div class="md:w-48">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Статус&nbsp;посещения
+            </label>
+            <select name="checked_in"
+                    class="w-full rounded-lg border-gray-300 dark:border-gray-600
                        bg-gray-50 dark:bg-gray-700/40
                        text-gray-900 dark:text-gray-100 text-sm px-3 py-2">
-            <option value="">Все</option>
-            <option value="yes" {% if checkin_filter == 'yes' %}selected{% endif %}>Только&nbsp;пришли</option>
-            <option value="no"  {% if checkin_filter == 'no'  %}selected{% endif %}>Только&nbsp;не&nbsp;пришли</option>
-        </select>
-    </div>
+                <option value="">Все</option>
+                <option value="yes" {% if checkin_filter == 'yes' %}selected{% endif %}>Только&nbsp;пришли</option>
+                <option value="no" {% if checkin_filter == 'no' %}selected{% endif %}>Только&nbsp;не&nbsp;пришли
+                </option>
+            </select>
+        </div>
 
-    <!-- Поиск по примечанию -->
-    <div class="md:flex-1">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Поиск&nbsp;по&nbsp;примечанию
-        </label>
-        <input type="text" name="note_contains" value="{{ note_query }}"
-               class="w-full rounded-lg border-gray-300 dark:border-gray-600
+        <!-- Поиск по примечанию -->
+        <div class="md:flex-1">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Поиск&nbsp;по&nbsp;примечанию
+            </label>
+            <input type="text" name="note_contains" value="{{ note_query }}"
+                   class="w-full rounded-lg border-gray-300 dark:border-gray-600
                       bg-gray-50 dark:bg-gray-700/40
                       text-gray-900 dark:text-gray-100 text-sm px-3 py-2
                       focus:border-indigo-500 focus:ring-indigo-500">
-    </div>
+        </div>
 
-    <!-- Кнопки -->
-    <div class="flex gap-3 md:ml-auto">
-        <button type="submit"
-                class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+        <!-- Кнопки -->
+        <div class="flex gap-3 md:ml-auto">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-5 py-2 rounded-full
                        bg-indigo-600 hover:bg-indigo-700
                        hover:-translate-y-0.5 active:translate-y-0
                        shadow hover:shadow-lg transition
                        text-white text-sm font-medium">
-            🔍 <span>Фильтровать</span>
-        </button>
+                🔍 <span>Фильтровать</span>
+            </button>
 
-        <a href="{% url 'view_participants' event.id %}"
-           class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+            <a href="{% url 'view_participants' event.id %}"
+               class="inline-flex items-center gap-2 px-5 py-2 rounded-full
                   border border-gray-300 dark:border-gray-600
                   text-gray-700 dark:text-gray-200
                   hover:bg-gray-100 dark:hover:bg-gray-700/60
                   hover:-translate-y-0.5 active:translate-y-0
                   shadow-sm hover:shadow transition text-sm font-medium">
-            ↺ <span>Сброс</span>
-        </a>
+                ↺ <span>Сброс</span>
+            </a>
 
-        <a href="{% url 'export_participants_xlsx' event.id %}?search={{ search }}&checked_in={{ checkin_filter }}&note_contains={{ note_query }}"
-           class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+            <a href="{% url 'export_participants_xlsx' event.id %}?search={{ search }}&checked_in={{ checkin_filter }}&note_contains={{ note_query }}"
+               class="inline-flex items-center gap-2 px-5 py-2 rounded-full
                   bg-teal-500 hover:bg-teal-600
                   hover:-translate-y-0.5 active:translate-y-0
                   shadow hover:shadow-lg transition
                   text-white text-sm font-medium">
-            ⬇️ <span>Excel</span>
-        </a>
-    </div>
-</form>
+                ⬇️ <span>Excel</span>
+            </a>
+        </div>
+    </form>
 
-<!-- ═╗ Таблица ╔═══════════════════════════════════════ -->
-<div class="overflow-x-auto">
-<table class="min-w-[50rem] w-full text-sm border-collapse">
-    <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100">
-        <tr>
-            <th class="p-3 text-left">ФИО</th>
-            <th class="p-3">Email</th>
-            <th class="p-3">Телефон</th>
-            <th class="p-3 text-center">Посетил</th>
-            <th class="p-3">Примечание</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for reg in registrations %}
-        <tr class="border-b border-gray-200 dark:border-gray-600">
-            <td class="p-3">{{ reg.full_name }}</td>
-            <td class="p-3 text-center">{{ reg.email }}</td>
-            <td class="p-3 text-center">{{ reg.phone }}</td>
+    <!-- ═╗ Таблица ╔═══════════════════════════════════════ -->
+    <div class="overflow-x-auto">
+        <table class="min-w-[50rem] w-full text-sm border-collapse">
+            <thead class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100">
+            <tr>
+                <th class="p-3 text-left">ФИО</th>
+                <th class="p-3">Email</th>
+                <th class="p-3">Телефон</th>
+                <th class="p-3 text-center">Посетил</th>
+                <th class="p-3">Примечание</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for reg in registrations %}
+                <tr class="border-b border-gray-200 dark:border-gray-600">
+                    <td class="p-3">{{ reg.full_name }}</td>
+                    <td class="p-3 text-center">{{ reg.email }}</td>
+                    <td class="p-3 text-center">{{ reg.phone }}</td>
 
-            <!-- Переключатель посещения -->
-            <td class="p-3 text-center">
-                <button type="button"
-                        class="inline-flex items-center justify-center h-8 w-8 rounded-full
+                    <!-- Переключатель посещения -->
+                    <td class="p-3 text-center">
+                        <button type="button"
+                                class="inline-flex items-center justify-center h-8 w-8 rounded-full
                                {% if reg.checked_in %}bg-teal-500{% else %}bg-gray-600/30 dark:bg-gray-500/30{% endif %}
                                text-white hover:scale-110 transition"
-                        onclick="toggleCheckin(this,'{% url 'toggle_checkin' event.id reg.id %}')">
-                    {% if reg.checked_in %}✔{% else %}—{% endif %}
-                </button>
-            </td>
+                                onclick="toggleCheckin(this,'{% url 'toggle_checkin' event.id reg.id %}')">
+                            {% if reg.checked_in %}✔{% else %}—{% endif %}
+                        </button>
+                    </td>
 
-            <!-- Примечание -->
-            <td class="p-3">
-                <form method="post"
-                      action="{% url 'update_note' event.id reg.id %}"
-                      class="flex gap-2">
-                    {% csrf_token %}
-                    <input type="text" name="note" value="{{ reg.note }}"
-                           class="flex-grow rounded-lg border-gray-300 dark:border-gray-600
-                                  bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100
-                                  text-sm px-3 py-1 focus:border-indigo-500 focus:ring-indigo-500">
-                    <button type="submit"
-                            class="inline-flex items-center justify-center h-8 w-8 rounded-full
-                                   bg-indigo-600 hover:bg-indigo-700
-                                   text-white text-xs transition">
-                        💾
-                    </button>
-                </form>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5" class="p-4 text-center text-gray-500">Нет участников</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
+                    <!-- Примечание -->
+                    <td class="p-3">
+                        <div class="flex gap-2">
+                            <input
+                                    type="text"
+                                    class="note-input flex-grow rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40 text-gray-900 dark:text-gray-100 text-sm px-3 py-1 focus:border-indigo-500 focus:ring-indigo-500"
+                                    value="{{ reg.note }}"
+                                    data-url="{% url 'update_note' event.id reg.id %}">
+                            <button
+                                    type="button"
+                                    class="note-save-btn inline-flex items-center justify-center h-8 w-8 rounded-full
+                                           bg-indigo-600 hover:bg-indigo-700 text-white text-xs transition">💾
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500">Нет участников</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-<!-- ════════ JS ════════ -->
-<script>
-/* CSRF */
-function getCookie(name){
-    const v=document.cookie.split('; ').find(r=>r.startsWith(name+'='));
-    return v?decodeURIComponent(v.split('=')[1]):'';
-}
-const csrftoken=getCookie('csrftoken');
+    <script>
+        // --- CSRF из куки ---
+        function getCookie(name) {
+            const v = document.cookie.split('; ').find(r => r.startsWith(name + '='));
+            return v ? decodeURIComponent(v.split('=')[1]) : '';
+        }
 
-/* AJAX toggle */
-function toggleCheckin(btn,url){
-    fetch(url,{
-        method:'POST',
-        credentials:'same-origin',
-        headers:{'X-CSRFToken':csrftoken,'X-Requested-With':'XMLHttpRequest'}
-    })
-    .then(r=>r.ok?r.json():Promise.reject())
-    .then(data=>{
-        btn.textContent=data.checked?'✔':'—';
-        btn.classList.toggle('bg-teal-500',data.checked);
-        btn.classList.toggle('bg-gray-600/30',!data.checked);
-    })
-    .catch(()=>alert('Не удалось сохранить отметку.'));
-}
-</script>
+        const csrftoken = getCookie('csrftoken');
+
+        // --- обработчик кнопок сохранения примечания ---
+        document.querySelectorAll('.note-save-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const wrapper = btn.closest('td');
+                const input = wrapper.querySelector('.note-input');
+                const url = input.dataset.url;
+
+                fetch(url, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({note: input.value})
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error();
+                        return res.json();
+                    })
+                    .then(data => {
+                        // подстраховка: обновляем поле из ответа сервера
+                        input.value = data.note;
+                        // визуальный отклик
+                        btn.textContent = '✓';
+                        setTimeout(() => btn.textContent = '💾', 1000);
+                    })
+                    .catch(() => {
+                        alert('Не удалось сохранить примечание.');
+                    });
+            });
+        });
+    </script>
 
 {% endblock %}

@@ -291,9 +291,9 @@ def toggle_checkin(request, event_id, registration_id):
 def update_note(request, event_id, registration_id):
     event = get_object_or_404(Event, id=event_id)
 
-    # доступить может только организатор-создатель
+    # доступ может получить только организатор-создатель
     if request.user != event.created_by or request.user.profile.role != 'organizer':
-        return redirect('event_detail', event_id=event_id)
+        return JsonResponse({'error': 'forbidden'}, status=403)
 
     registration = get_object_or_404(
         Registration,
@@ -301,10 +301,13 @@ def update_note(request, event_id, registration_id):
         event=event
     )
 
-    registration.note = request.POST.get('note', '').strip()
+    # сохраняем новое примечание
+    note = request.POST.get('note', '').strip()
+    registration.note = note
     registration.save(update_fields=['note'])
 
-    return redirect('view_participants', event_id=event_id)
+    # возвращаем актуальное значение
+    return JsonResponse({'note': registration.note})
 
 
 @login_required
