@@ -545,6 +545,37 @@ def leave_feedback_token(request, access_token, activity_id=None):
     })
 
 
+@require_POST
+def leave_activity_feedback_api(request, access_token, activity_id):
+    # ➊ Ищем регистрацию и мероприятие
+    registration = get_object_or_404(Registration, access_token=access_token)
+    activity = get_object_or_404(ScheduleItem, id=activity_id, event=registration.event)
+    # ➋ Проверяем, что активность уже закончилась
+    if timezone.localtime() < activity.end_time:
+        return JsonResponse({'error': 'too_early'}, status=400)
+    # ➌ Дёргаем данные из POST
+    rating = request.POST.get('rating')
+    text = request.POST.get('text', '').strip()
+    if not rating or not text:
+        return JsonResponse({'error': 'missing_fields'}, status=400)
+    # ➍ Создаём и сохраняем отзыв
+    fb = Feedback.objects.create(
+        registration=registration,
+        activity=activity,
+        text=text,
+        rating=int(rating)
+    )
+    # ➎ Формируем ответ
+    return JsonResponse({
+        'activity_id': activity.id,
+        'feedback': {
+            'rating': fb.rating,
+            'text': fb.text,
+            'created_at': fb.created_at.isoformat()
+        }
+    })
+
+
 @login_required
 def controller_panel(request):
     try:
