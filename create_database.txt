@@ -1,0 +1,11 @@
+CREATE DATABASE event_db;
+CREATE USER event_user WITH PASSWORD 'your_password';
+ALTER ROLE event_user SET client_encoding TO 'UTF8';
+ALTER ROLE event_user SET default_transaction_isolation TO 'read committed';
+ALTER ROLE event_user SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE event_db TO event_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO event_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO event_user;
+ALTER SCHEMA public OWNER TO event_user;
+ALTER DATABASE event_db OWNER TO event_user;
+GRANT ALL ON SCHEMA public TO event_user;
