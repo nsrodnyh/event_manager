@@ -9,16 +9,15 @@ from django.views.decorators.http import require_POST
 from .models import Event, ScheduleItem, Registration
 from .forms import EventForm, ScheduleItemForm, MaterialForm, FeedbackForm, PublicRegistrationForm
 import openpyxl
-from django.http import HttpResponse, JsonResponse, Http404, HttpResponseBadRequest
+from django.http import HttpResponse, JsonResponse, Http404
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.conf import settings
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 from django.contrib.auth.views import LoginView
 from babel.dates import format_datetime
-from .pdf_fonts import register_dejavu
 from core.dates import ru_dt
+from django.template.loader import render_to_string
+from weasyprint import HTML
 
 def index(request):
     return render(request, 'index.html')
@@ -249,19 +248,6 @@ def view_participants(request, event_id):
     })
 
 
-# @require_POST
-# @login_required
-# def toggle_checkin(request, event_id, registration_id):
-#     event = Event.objects.get(id=event_id)
-#     if not request.user.profile.role == 'organizer' or event.created_by != request.user:
-#         return redirect('event_detail', event_id=event_id)
-#
-#     registration = Registration.objects.get(event=event, id=registration_id)
-#     registration.checked_in = not registration.checked_in
-#     registration.save()
-#     return redirect('view_participants', event_id=event_id)
-
-
 @require_POST
 @login_required
 def toggle_checkin(request, event_id, registration_id):
@@ -437,17 +423,6 @@ def access_via_token(request, access_token):
                                 activity__isnull=True)  # только по мероприятию
         .first()
     )
-
-    # activity_feedbacks = []
-    # for act in schedule:
-    #     fb = Feedback.objects.filter(
-    #         registration=registration,
-    #         activity=act
-    #     ).first()
-    #     activity_feedbacks.append({
-    #         'activity': act,
-    #         'feedback': fb  # None, если ещё не оставляли
-    #     })
 
 
     return render(request, 'access_event.html', {
@@ -645,16 +620,6 @@ def event_stats(request, event_id):
     })
 
 
-# ---------- PDF рендер ----------
-def render_to_pdf(template_src, context):
-    register_dejavu()                       # <── регистрируем перед рендером
-    html = get_template(template_src).render(context)
-
-    response = HttpResponse(content_type='application/pdf')
-    pisa.CreatePDF(html, dest=response, encoding='UTF-8')
-    return response
-
-
 @login_required
 def event_stats_pdf(request, event_id):
     event = get_object_or_404(Event, id=event_id)
@@ -687,7 +652,10 @@ def event_stats_pdf(request, event_id):
         'activity_data': activity_data,
     }
 
-    return render_to_pdf('event_stats_pdf.html', context)
+    html_string = render_to_string('event_stats_pdf.html', context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+
+    return HttpResponse(pdf_file, content_type='application/pdf')
 
 
 @login_required
