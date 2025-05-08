@@ -45,16 +45,16 @@
                     {% endif %}
 
                     <div id="activity-feedback-{{ item.id }}" class="mb-2">
-                        {% if item.feedback %}
+                        {% if item.feedback_set.exists %}
                             {# уже есть отзыв — показываем его #}
                             <div class="text-warning text-lg mb-2 mt-6">
                                 {% for _ in "12345"|make_list %}
-                                    {% if forloop.counter <= item.feedback.rating %}★{% else %}☆{% endif %}
+                                    {% if forloop.counter <= item.feedback_set.first.rating %}★{% else %}☆{% endif %}
                                 {% endfor %}
                             </div>
-                            <p class="mb-2">{{ item.feedback.text|linebreaksbr }}</p>
+                            <p class="mb-2">{{ item.feedback_set.first.text|linebreaksbr }}</p>
                             <small class="text-xs text-gray-500">
-                                Оставлен {{ item.feedback.created_at|localtime|date:"d.m.Y H:i" }}
+                                Оставлен {{ item.feedback_set.first.created_at|localtime|date:"d.m.Y H:i" }}
                             </small>
                         {% elif item.end_time <= now %}
                             {# кнопка заменена на кнопку, а не <a> #}

@@ -438,24 +438,17 @@ def access_via_token(request, access_token):
         .first()
     )
 
-    activity_feedbacks = []
-    for act in schedule:
-        fb = Feedback.objects.filter(
-            registration=registration,
-            activity=act
-        ).first()
-        activity_feedbacks.append({
-            'activity': act,
-            'feedback': fb  # None, если ещё не оставляли
-        })
+    # activity_feedbacks = []
+    # for act in schedule:
+    #     fb = Feedback.objects.filter(
+    #         registration=registration,
+    #         activity=act
+    #     ).first()
+    #     activity_feedbacks.append({
+    #         'activity': act,
+    #         'feedback': fb  # None, если ещё не оставляли
+    #     })
 
-        for activity in schedule:
-            activity.feedback = (
-                Feedback.objects.filter(
-                    registration=registration,
-                    activity=act
-                ).first()
-            )
 
     return render(request, 'access_event.html', {
         'registration': registration,
@@ -466,7 +459,7 @@ def access_via_token(request, access_token):
         'now': now,
         'can_leave_feedback': can_leave_feedback,
         'feedback': feedback,
-        'activity_feedbacks': activity_feedbacks,
+        # 'activity_feedbacks': activity_feedbacks,
         'no_auth_nav': True,
     })
 
