@@ -30,7 +30,8 @@ def register(request):
 
             # создать профиль (если ещё не)
             if not hasattr(user, 'profile'):
-                Profile.objects.create(user=user)
+                Profile.objects.create(user=user, role='organizer')
+
 
             login(request, user)
 
