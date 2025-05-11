@@ -1,4 +1,4 @@
-from django.db.models import Avg
+from django.db.models import Avg, Q
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import StyledRegisterForm
@@ -566,7 +566,10 @@ def controller_panel(request):
     # Новый блок — фильтрация
     search = request.GET.get('search', '')
     if search:
-        registrations = registrations.filter(full_name__icontains=search)
+        registrations = registrations.filter(
+            Q(full_name__icontains=search) |
+            Q(phone__icontains=search)
+        )
 
     if request.method == 'POST':
         for reg in registrations:
