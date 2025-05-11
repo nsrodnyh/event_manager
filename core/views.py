@@ -1,6 +1,8 @@
 from django.db.models import Avg, Q
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.timezone import localtime
+
 from .forms import StyledRegisterForm
 from django.contrib.auth import login
 from .models import Profile, ControllerProfile, Feedback, Material
@@ -150,7 +152,11 @@ def add_schedule_item(request, event_id):
             schedule_item.save()
             return redirect('event_detail', event_id=event_id)
     else:
-        form = ScheduleItemForm()
+        event_date = localtime(event.date).date().isoformat()
+        form = ScheduleItemForm(initial={
+            'start_time': f"{event_date}T09:00",
+            'end_time': f"{event_date}T10:00",
+        })
 
     return render(request, 'add_schedule_item.html', {'form': form, 'event': event})
 
