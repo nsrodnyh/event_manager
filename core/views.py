@@ -552,7 +552,6 @@ def controller_panel(request):
     except ControllerProfile.DoesNotExist:
         return redirect('index')
 
-    # Автодеактивация если мероприятие прошло
     if profile.event.end_date < timezone.now():
         profile.is_active = False
         profile.save()
@@ -561,8 +560,13 @@ def controller_panel(request):
     if not hasattr(request.user, 'controllerprofile'):
         return HttpResponse("У вас нет доступа к панели контролёра.")
 
-    event = request.user.controllerprofile.event
+    event = profile.event
     registrations = event.registrations.all()
+
+    # Новый блок — фильтрация
+    search = request.GET.get('search', '')
+    if search:
+        registrations = registrations.filter(full_name__icontains=search)
 
     if request.method == 'POST':
         for reg in registrations:
@@ -575,6 +579,7 @@ def controller_panel(request):
     return render(request, 'controller_panel.html', {
         'event': event,
         'registrations': registrations,
+        'search': search,  # ← передаём в шаблон
     })
 
 
