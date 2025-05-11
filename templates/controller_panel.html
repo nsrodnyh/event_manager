@@ -37,6 +37,13 @@
                 <h3 class="text-lg font-medium mb-1">{{ reg.full_name }}</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-400">{{ reg.phone }}</p>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ reg.email }}</p>
+                {% if reg.note %}
+                    <p class="text-sm text-gray-700 dark:text-gray-300 italic mb-4">
+                        📝 <span class="font-medium">Примечание:</span> {{ reg.note }}
+                    </p>
+                {% else %}
+                    <p class="text-sm text-gray-400 italic mb-4">— Без примечаний</p>
+                {% endif %}
 
                 <!-- Toggle -->
                 <div class="mt-auto flex items-center gap-3">
