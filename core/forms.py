@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.models import User
+
 from .models import Event, ScheduleItem, Material, Feedback, Registration
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils import timezone
@@ -134,3 +136,9 @@ class StyledRegisterForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+
+class ControllerRegistrationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ("username", "password1", "password2")

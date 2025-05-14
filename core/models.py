@@ -16,6 +16,7 @@ class Event(models.Model):
     cover = models.ImageField(upload_to='event_covers/', blank=True, null=True)  # обложка
     registration_deadline = models.DateTimeField(null=True, blank=True)  # крайний срок
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events')
+    controller_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     def __str__(self):
         return self.title

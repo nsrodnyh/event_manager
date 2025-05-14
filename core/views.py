@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import localtime
 
-from .forms import StyledRegisterForm
+from .forms import StyledRegisterForm, ControllerRegistrationForm
 from django.contrib.auth import login
 from .models import Profile, ControllerProfile, Feedback, Material
 from django.contrib.auth.decorators import login_required
@@ -98,6 +98,10 @@ def event_detail(request, event_id):
         reverse('public_register', args=[event.id])
     )
 
+    controller_public_link = request.build_absolute_uri(
+        reverse('register_controller_by_token', args=[event.controller_token])
+    )
+
     facts = [
         ("Дата проведения:", ru_dt(event.date)),
         ("Окончание:", ru_dt(event.end_date)),
@@ -113,6 +117,7 @@ def event_detail(request, event_id):
         'feedback_by_activity': feedback_by_activity,
         'public_link': public_link,
         'facts': facts,
+        'controller_public_link': controller_public_link,
     })
 
 
@@ -801,3 +806,25 @@ def delete_material(request, material_id):
         pass
 
     return redirect('event_detail', event_id=event.id)
+
+
+def register_controller_by_token(request, token):
+    event = get_object_or_404(Event, controller_token=token)
+
+    if request.user.is_authenticated:
+        return redirect('index')
+
+    if request.method == 'POST':
+        form = ControllerRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            profile, created = Profile.objects.get_or_create(user=user, defaults={'role': 'controller'})
+            ControllerProfile.objects.create(user=user, event=event)
+            return redirect('login')  # или в `controller_panel`
+    else:
+        form = ControllerRegistrationForm()
+
+    return render(request, 'register_controller.html', {
+        'form': form,
+        'event': event
+    })

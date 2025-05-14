@@ -44,6 +44,7 @@ urlpatterns = [
         views.leave_activity_feedback_api,
         name='leave_activity_feedback_api'
     ),
+    path('register-controller/<uuid:token>/', views.register_controller_by_token, name='register_controller_by_token'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

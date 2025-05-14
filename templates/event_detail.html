@@ -86,6 +86,65 @@
         </div>
     {% endif %}
 
+    <!-- ═╗ Контролёры ╔═════════════════════════════════════ -->
+    <div class="bg-gray-50/40 dark:bg-gray-700/20 border border-gray-300 dark:border-gray-600/50
+            rounded-2xl p-6 mb-16">
+        <h3 class="font-medium mb-3 text-gray-800 dark:text-gray-100">
+            🔑 Ссылка для регистрации контролёра
+        </h3>
+        <div class="flex items-center gap-3">
+            <input id="controllerLink" value="{{ controller_public_link }}"
+                   readonly
+                   class="flex-grow bg-white/50 dark:bg-gray-700/40 border
+                      border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2
+                      text-sm select-all">
+            <button id="copyControllerLink"
+                    class="inline-flex items-center gap-2 px-5 py-2 rounded-full
+                       bg-gray-800/90 text-gray-100 hover:bg-gray-900
+                       hover:-translate-y-0.5 active:translate-y-0
+                       shadow hover:shadow-lg transition font-medium text-sm">
+                <span class="emoji">📋</span> <span class="label">Копировать</span>
+            </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">Отправьте эту ссылку контролёрам — они смогут зарегистрироваться и
+            получить
+            доступ к панели.</p>
+
+        {% if event.controllerprofile_set.all %}
+            <h4 class="mt-6 text-sm font-semibold text-gray-600 dark:text-gray-300">👥 Подключённые контролёры:</h4>
+            <ul class="mt-2 divide-y divide-gray-200 dark:divide-gray-600">
+                {% for c in event.controllerprofile_set.all %}
+                    <li class="py-2 text-sm text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                        <span class="text-lg">👤</span> {{ c.user.username }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="mt-4 text-sm text-gray-500 dark:text-gray-400 italic">Контролёры ещё не добавлены.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('copyControllerLink').addEventListener('click', e => {
+            const button = e.currentTarget;
+            const input = document.getElementById('controllerLink');
+
+            navigator.clipboard.writeText(input.value);
+
+            const emoji = button.querySelector('.emoji');
+            const text = button.querySelector('.label');
+
+            emoji.textContent = '✅';
+            text.textContent = 'Скопировано';
+
+            setTimeout(() => {
+                emoji.textContent = '📋';
+                text.textContent = 'Копировать';
+            }, 2000);
+        });
+    </script>
+
+
     <!-- ═╗ Публичная ссылка ╔══════════════════════════════ -->
     <div class="bg-indigo-50/40 dark:bg-indigo-400/10 border border-indigo-200 dark:border-indigo-500/30
             rounded-2xl p-6 mb-16">
@@ -102,7 +161,7 @@
                        bg-gray-800/90 text-gray-100 hover:bg-gray-900
                        hover:-translate-y-0.5 active:translate-y-0
                        shadow hover:shadow-lg transition font-medium text-sm">
-                📋 <span>Копировать</span>
+                <span class="emoji">📋</span> <span class="label">Копировать</span>
             </button>
         </div>
         <p class="text-xs text-gray-500 mt-2">Отправьте эту ссылку участникам.</p>
@@ -110,9 +169,21 @@
 
     <script>
         document.getElementById('copyLink').addEventListener('click', e => {
-            navigator.clipboard.writeText(document.getElementById('publicLink').value);
-            e.target.textContent = '✅ Скопировано';
-            setTimeout(() => e.target.textContent = '📋 Копировать', 2000);
+            const button = e.currentTarget;
+            const input = document.getElementById('publicLink');
+
+            navigator.clipboard.writeText(input.value);
+
+            const emoji = button.querySelector('.emoji');
+            const text = button.querySelector('.label');
+
+            emoji.textContent = '✅';
+            text.textContent = 'Скопировано';
+
+            setTimeout(() => {
+                emoji.textContent = '📋';
+                text.textContent = 'Копировать';
+            }, 2000);
         });
     </script>
 
