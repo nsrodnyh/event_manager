@@ -42,7 +42,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'role')
+    list_display = ('user_id','user', 'role')
     list_filter = ('role',)
 
 
@@ -51,7 +51,7 @@ class ProfileAdmin(admin.ModelAdmin):
 #     can_delete = False
 
 class UserAdmin(BaseUserAdmin):
-    pass
+    list_display = ('id', 'username', 'email', 'first_name', 'last_name', 'is_staff')
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
