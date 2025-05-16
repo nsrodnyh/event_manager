@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, ScheduleItem, Material, Feedback, Profile, ControllerProfile
+from .models import Event, ScheduleItem, Material, Feedback, Profile, ControllerProfile, Registration
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
@@ -40,18 +40,24 @@ class FeedbackAdmin(admin.ModelAdmin):
 
     event_or_activity.short_description = 'Объект отзыва'
 
+
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user_id','user', 'role')
     list_filter = ('role',)
 
 
-# class ProfileInline(admin.StackedInline):
-#     model = Profile
-#     can_delete = False
+@admin.register(Registration)
+class RegistrationAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'event', 'email', 'phone', 'checked_in', 'created_at')
+    list_filter = ('event', 'checked_in', 'created_at')
+    search_fields = ('full_name', 'email', 'phone', 'note')
+    readonly_fields = ('access_token', 'created_at')
+
 
 class UserAdmin(BaseUserAdmin):
     list_display = ('id', 'username', 'email', 'first_name', 'last_name', 'is_staff')
+
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
