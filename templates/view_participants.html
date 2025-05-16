@@ -180,6 +180,36 @@
                     });
             });
         });
+
+        function toggleCheckin(button, url) {
+            fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(r => {
+                if (!r.ok) throw new Error();
+                return r.json();
+            })
+            .then(data => {
+                // Обновить текст кнопки
+                button.textContent = data.checked ? '✔' : '—';
+
+                // Обновить цвет кнопки
+                button.classList.remove('bg-teal-500', 'bg-gray-600/30', 'dark:bg-gray-500/30');
+                if (data.checked) {
+                    button.classList.add('bg-teal-500');
+                } else {
+                    button.classList.add('bg-gray-600/30', 'dark:bg-gray-500/30');
+                }
+            })
+            .catch(() => {
+                alert('Не удалось сохранить отметку. Проверьте соединение.');
+            });
+        }
     </script>
 
 {% endblock %}
