@@ -29,12 +29,6 @@ def register(request):
         form = StyledRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-
-            # создать профиль (если ещё не)
-            if not hasattr(user, 'profile'):
-                Profile.objects.create(user=user, role='organizer')
-
-
             login(request, user)
 
             # 🎯 Редирект по роли
@@ -64,7 +58,7 @@ def event_list(request):
     elif role == 'controller':
         events = Event.objects.filter(controllerprofile__user=request.user).distinct()
     else:
-        events = Event.objects.all().order_by('-date')
+        events = False
 
     return render(request, 'event_list.html', {'events': events})
 

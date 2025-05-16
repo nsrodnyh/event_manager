@@ -1,45 +1,56 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
-    📅 Все&nbsp;мероприятия
-</h2>
+    <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+        📅 Все&nbsp;мероприятия
+    </h2>
 
-{% if events %}
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {% for event in events %}
-            <div class="bg-white dark:bg-[#262626] rounded-2xl shadow hover:shadow-md transition h-full flex flex-col">
-                {% if event.cover %}
-                    <img src="{{ event.cover.url }}"
-                         alt="{{ event.title }}"
-                         class="w-full h-40 object-cover rounded-t-2xl">
-                {% endif %}
+    {% if events %}
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for event in events %}
+                <div class="bg-white dark:bg-[#262626] rounded-2xl shadow hover:shadow-md transition h-full flex flex-col">
+                    {% if event.cover %}
+                        <img src="{{ event.cover.url }}"
+                             alt="{{ event.title }}"
+                             class="w-full h-40 object-cover rounded-t-2xl">
+                    {% endif %}
 
-                <div class="p-5 flex-grow flex flex-col">
-                    <h3 class="text-lg font-medium mb-2 line-clamp-2">
-                        {{ event.title }}
-                    </h3>
+                    <div class="p-5 flex-grow flex flex-col">
+                        <h3 class="text-lg font-medium mb-2 line-clamp-2">
+                            {{ event.title }}
+                        </h3>
 
-                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-grow">
-                        <span class="font-medium">Дата:</span>
-                        {{ event.date|date:"d E Y · H:i" }}<br>
-                        <span class="font-medium">Организатор:</span>
-                        {{ event.created_by.username }}
-                    </p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed flex-grow">
+                            <span class="font-medium">Дата:</span>
+                            {{ event.date|date:"d E Y · H:i" }}<br>
+                            <span class="font-medium">Организатор:</span>
+                            {{ event.created_by.username }}
+                        </p>
 
-                    <a href="{% url 'event_detail' event.id %}"
-                       class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700
+                        <a href="{% url 'event_detail' event.id %}"
+                           class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700
                               text-white text-sm font-medium py-2 px-4 rounded-full mt-4 transition">
-                        📄 Подробнее
-                    </a>
+                            📄 Подробнее
+                        </a>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <p class="text-gray-500 dark:text-gray-400">
-        Пока нет опубликованных мероприятий.
-    </p>
-{% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-500 dark:text-gray-400">
+            Пока нет опубликованных мероприятий.
+        </p>
+    {% endif %}
+
+    {% if user.profile.role == 'organizer' %}
+        <div class="mt-10">
+            <a href="{% url 'create_event' %}"
+               class="inline-flex items-center gap-2 px-6 py-3 rounded-full
+              bg-teal-600 text-white hover:bg-teal-700
+              shadow hover:shadow-lg transition text-sm font-medium">
+                ➕ <span>Добавить мероприятие</span>
+            </a>
+        </div>
+    {% endif %}
 
 {% endblock %}

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import Event, ScheduleItem, Material, Feedback, Registration
+from .models import Event, ScheduleItem, Material, Feedback, Registration, Profile
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils import timezone
 
@@ -136,6 +136,14 @@ class StyledRegisterForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+
+        # Создание или обновление профиля с ролью 'organizer'
+        Profile.objects.update_or_create(user=user, defaults={'role': 'organizer'})
+
+        return user
 
 
 class ControllerRegistrationForm(UserCreationForm):

@@ -97,13 +97,6 @@ class ControllerProfile(models.Model):
         return f"Контролёр {self.user.username} на {self.event.title}"
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        # если профиль уже есть, ничего не делаем
-        Profile.objects.get_or_create(user=instance)
-
-
 @receiver(post_delete, sender=User)
 def delete_profile_with_user(sender, instance, **kwargs):
     try:
