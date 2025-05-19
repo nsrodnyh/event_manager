@@ -2,7 +2,6 @@ from django.db.models import Avg, Q
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import localtime
-
 from .forms import StyledRegisterForm, ControllerRegistrationForm
 from django.contrib.auth import login
 from .models import Profile, ControllerProfile, Feedback, Material
@@ -35,7 +34,7 @@ def register(request):
             if hasattr(user, 'controllerprofile'):
                 return redirect('controller_panel')
             elif hasattr(user, 'profile') and user.profile.role == 'organizer':
-                return redirect('my_events')
+                return redirect('event_list')
             else:
                 return redirect('index')
     else:
@@ -591,13 +590,13 @@ def controller_panel(request):
     })
 
 
-@login_required
-def my_events(request):
-    if request.user.profile.role != 'organizer':
-        return redirect('event_list')
-
-    events = Event.objects.filter(created_by=request.user)
-    return render(request, 'my_events.html', {'events': events})
+# @login_required
+# def my_events(request):
+#     if request.user.profile.role != 'organizer':
+#         return redirect('event_list')
+#
+#     events = Event.objects.filter(created_by=request.user)
+#     return render(request, 'my_events.html', {'events': events})
 
 
 @login_required
@@ -771,7 +770,7 @@ class RoleBasedLoginView(LoginView):
 
         # Если организатор
         if hasattr(user, 'profile') and user.profile.role == 'organizer':
-            return reverse('my_events')
+            return reverse('event_list')
 
         # По умолчанию — на главную
         return reverse('index')

@@ -31,7 +31,7 @@ urlpatterns = [
     path('feedback/<uuid:access_token>/activity/<int:activity_id>/', views.leave_feedback_token,
          name='leave_activity_feedback'),
     path('controller/', views.controller_panel, name='controller_panel'),
-    path('my-events/', views.my_events, name='my_events'),
+    # path('my-events/', views.my_events, name='my_events'),
     path('events/<int:event_id>/stats/', views.event_stats, name='event_stats'),
     path('events/<int:event_id>/stats/pdf/', views.event_stats_pdf, name='event_stats_pdf'),
     path('events/<int:event_id>/edit/', views.edit_event, name='edit_event'),
