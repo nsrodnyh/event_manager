@@ -429,6 +429,16 @@ def access_via_token(request, access_token):
         .first()
     )
 
+    activity_feedbacks = {}
+    for item in schedule:
+        fb = (
+            Feedback.objects.filter(registration=registration, activity=item)
+            .order_by('-created_at')
+            .first()
+        )
+        if fb:
+            activity_feedbacks[item.id] = fb
+
 
     return render(request, 'access_event.html', {
         'registration': registration,
@@ -439,7 +449,7 @@ def access_via_token(request, access_token):
         'now': now,
         'can_leave_feedback': can_leave_feedback,
         'feedback': feedback,
-        # 'activity_feedbacks': activity_feedbacks,
+        'activity_feedbacks': activity_feedbacks,
         'no_auth_nav': True,
     })
 
