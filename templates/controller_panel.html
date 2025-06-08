@@ -53,25 +53,36 @@
 
                 <!-- Toggle -->
                 <div class="mt-auto flex items-center gap-3">
-                    <input id="reg-{{ reg.id }}"
-                           type="checkbox"
-                           {% if reg.checked_in %}checked{% endif %}
-                           class="h-5 w-10 appearance-none rounded-full
-                               bg-gray-300 dark:bg-gray-600
-                               peer transition
-                               checked:bg-teal-500 relative
-                               before:absolute before:top-0.5 before:left-0.5
-                               before:h-4 before:w-4 before:rounded-full
-                               before:bg-white before:transition
-                               peer-checked:before:translate-x-5"
-                           onclick="toggleCheckin(this,'{% url 'toggle_checkin' event.id reg.id %}')">
+    {#                    <input id="reg-{{ reg.id }}"#}
+    {#                           type="checkbox"#}
+    {#                           {% if reg.checked_in %}checked{% endif %}#}
+    {#                           class="h-5 w-10 appearance-none rounded-full#}
+    {#                               bg-gray-300 dark:bg-gray-600#}
+    {#                               peer transition#}
+    {#                               checked:bg-teal-500 relative#}
+    {#                               before:absolute before:top-0.5 before:left-0.5#}
+    {#                               before:h-4 before:w-4 before:rounded-full#}
+    {#                               before:bg-white before:transition#}
+    {#                               peer-checked:before:translate-x-5"#}
+    {#                           onclick="toggleCheckin(this,'{% url 'toggle_checkin' event.id reg.id %}')">#}
 
-                    <label for="reg-{{ reg.id }}" class="select-none text-sm">
-                        {% if reg.checked_in %}
-                            ✅ Отметка: Пришёл
-                        {% else %}
-                            ❌ Не&nbsp;пришёл
-                        {% endif %}
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input id="reg-{{ reg.id }}"
+                               type="checkbox"
+                               {% if reg.checked_in %}checked{% endif %}
+                               class="sr-only peer"
+                               onclick="toggleCheckin(this,'{% url 'toggle_checkin' event.id reg.id %}')">
+                        <div class="w-10 h-5 bg-gray-300 peer-focus:outline-none
+                                    peer-focus:ring-4 peer-focus:ring-indigo-300
+                                    rounded-full peer dark:bg-gray-600
+                                    dark:peer-focus:ring-indigo-800
+                                    transition peer-checked:bg-teal-500"></div>
+                        <div class="absolute left-0.5 top-0.5 w-4 h-4
+                                    bg-white border border-gray-300 rounded-full
+                                    shadow transition-all peer-checked:translate-x-5"></div>
+                        <span class="ml-3 select-none text-sm">
+                            {% if reg.checked_in %}✅ Отметка: Пришёл{% else %}❌ Не&nbsp;пришёл{% endif %}
+                        </span>
                     </label>
                 </div>
             </div>
@@ -118,9 +129,10 @@
                     return r.json();
                 })
                 .then(data => {
-                    const label = checkbox.parentElement.querySelector('label');
-                    label.textContent = data.checked ? '✅ Отметка: Пришёл'
-                        : '❌ Не пришёл';
+                    const statusSpan = checkbox.closest('label').querySelector('span');
+                    if (statusSpan) {
+                        statusSpan.textContent = data.checked ? '✅ Отметка: Пришёл' : '❌ Не пришёл';
+                    }
                 })
                 .catch(() => {
                     checkbox.checked = !checkbox.checked;
