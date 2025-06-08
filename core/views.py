@@ -442,7 +442,6 @@ def access_via_token(request, access_token):
     facts = [
         ("Дата проведения:", ru_dt(event.date)),
         ("Окончание:", ru_dt(event.end_date)),
-        ("Регистрация до:", ru_dt(event.registration_deadline)),
         ("Место:", event.location or "(не указано)"),
     ]
 
