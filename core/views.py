@@ -439,6 +439,12 @@ def access_via_token(request, access_token):
         if fb:
             activity_feedbacks[item.id] = fb
 
+    facts = [
+        ("Дата проведения:", ru_dt(event.date)),
+        ("Окончание:", ru_dt(event.end_date)),
+        ("Регистрация до:", ru_dt(event.registration_deadline)),
+        ("Место:", event.location or "(не указано)"),
+    ]
 
     return render(request, 'access_event.html', {
         'registration': registration,
@@ -451,6 +457,7 @@ def access_via_token(request, access_token):
         'feedback': feedback,
         'activity_feedbacks': activity_feedbacks,
         'no_auth_nav': True,
+        'facts': facts,
     })
 
 

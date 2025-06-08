@@ -15,6 +15,20 @@
         <p><span class="font-medium">Телефон:</span> {{ registration.phone }}</p>
     </section>
 
+    <!-- ═╗ Ключевые факты ╔════════════════════════════════ -->
+    <section class="bg-white dark:bg-[#262626] rounded-3xl shadow p-8 mb-12 grid md:grid-cols-2 gap-8">
+        <div class="space-y-3 text-sm md:text-base">
+            {% for label,value in facts %}
+                <div class="flex gap-2">
+                    <span class="font-medium w-40 text-gray-600 dark:text-gray-400">{{ label }}</span>
+                    <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ value }}</span>
+                </div>
+            {% endfor %}
+            <p><span class="font-medium text-gray-600 dark:text-gray-400">Описание:</span><br>
+                {{ event.description|default:"(нет описания)" }}</p>
+        </div>
+    </section>
+
     <!-- ════════════  Расписание  ════════════ -->
     <h3 class="text-xl font-semibold mb-6">📑 Расписание</h3>
     {% if schedule %}
